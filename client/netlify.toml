@@ -1,0 +1,17 @@
+[build]
+  # For Vite projects, the build command is usually 'npm run build'
+  # and the output directory is 'dist'
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[header.values]
+  # Security headers for your DubaiP2P site
+  X-Frame-Options = "DENY"
+  X-XSS-Protection = "1; mode=block"
+  X-Content-Type-Options = "nosniff"
+  Referrer-Policy = "same-origin"
