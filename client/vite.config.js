@@ -14,5 +14,11 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  // .env nastaana he sarvottam solution aahe
+  define: {
+    'process.env': {
+      VITE_API_URL: JSON.stringify('https://dubaip2p.onrender.com')
+    }
   }
 })

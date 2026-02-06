@@ -1,17 +1,10 @@
 [build]
-  # For Vite projects, the build command is usually 'npm run build'
-  # and the output directory is 'dist'
-  command = "npm run build"
+  # Netlify build command madhech install ani permissions set kara
+  command = "npm install && chmod +x ./node_modules/.bin/vite && npm run build"
   publish = "dist"
 
 [[redirects]]
+  # React Router sathi he garajiche aahe
   from = "/*"
   to = "/index.html"
   status = 200
-
-[header.values]
-  # Security headers for your DubaiP2P site
-  X-Frame-Options = "DENY"
-  X-XSS-Protection = "1; mode=block"
-  X-Content-Type-Options = "nosniff"
-  Referrer-Policy = "same-origin"
