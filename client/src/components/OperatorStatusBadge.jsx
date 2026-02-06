@@ -1,26 +1,41 @@
 import React, { useEffect, useState } from 'react'
 
-export default function OperatorStatusBadge(){
+export default function OperatorStatusBadge() {
   const [online, setOnline] = useState(false)
 
-  useEffect(()=>{
+  useEffect(() => {
     let mounted = true
-    const fetchStatus = async ()=>{
-      try{
-        const r = await fetch('/api/exchange/admin/operator')
+    const fetchStatus = async () => {
+      try {
+        // Change the URL to the public endpoint
+        const r = await fetch('/api/exchange/operator')
         if (!r.ok) return
         const d = await r.json()
-        if(mounted) setOnline(!!d.online)
-      }catch(e){}
+        if (mounted) setOnline(!!d.online)
+      } catch (e) {
+        console.error("Status check failed:", e)
+      }
     }
+    
     fetchStatus()
     const iv = setInterval(fetchStatus, 20000)
-    return ()=>{ mounted=false; clearInterval(iv) }
+    return () => { mounted = false; clearInterval(iv) }
   }, [])
 
   return (
-    <div className={`px-2 py-1 rounded text-xs font-semibold ${online ? 'bg-green-700 text-green-100' : 'bg-zinc-800 text-gray-300'}`}>
-      {online ? 'Operator: Online' : 'Operator: Offline'}
+    <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-full shadow-inner">
+      {/* Visual indicator with pulse effect for 'Online' status */}
+      <div className="relative flex h-2 w-2">
+        {online && (
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        )}
+        <span className={`relative inline-flex rounded-full h-2 w-2 ${online ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+      </div>
+      
+      {/* Dynamic text based on operator state */}
+      <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">
+        Operator: {online ? 'Online' : 'Offline'}
+      </span>
     </div>
   )
 }

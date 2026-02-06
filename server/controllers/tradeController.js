@@ -294,14 +294,13 @@ exports.adminStats = async (req, res) => {
   }
 };
 
-// Operator online status stored in settings
+// controllers/tradeController.js
+
 exports.getOperatorStatus = async (req, res) => {
   try {
     const s = await Setting.findOne({ key: 'OPERATOR_ONLINE' }).lean();
-    const online = s && s.value === true;
-    return res.json({ online });
+    return res.json({ online: s ? s.value : false });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ message: 'Server error' });
   }
 };
@@ -309,11 +308,13 @@ exports.getOperatorStatus = async (req, res) => {
 exports.setOperatorStatus = async (req, res) => {
   try {
     const { online } = req.body;
-    if (typeof online !== 'boolean') return res.status(400).json({ message: 'online boolean required' });
-    await Setting.findOneAndUpdate({ key: 'OPERATOR_ONLINE' }, { key: 'OPERATOR_ONLINE', value: online }, { upsert: true });
-    return res.json({ online });
+    const updated = await Setting.findOneAndUpdate(
+      { key: 'OPERATOR_ONLINE' }, 
+      { key: 'OPERATOR_ONLINE', value: !!online }, 
+      { upsert: true, new: true }
+    );
+    return res.json({ online: updated.value });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ message: 'Server error' });
   }
 };

@@ -107,5 +107,18 @@ const updateProfile = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
+// Define the missing function
+const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select('-password').lean();
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    return res.json({ user });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
 
-module.exports = { signup, login, getCurrentUser, updateProfile };
+// Now this export line will work
+module.exports = { signup, login, getCurrentUser, updateProfile, getUserById };
+
