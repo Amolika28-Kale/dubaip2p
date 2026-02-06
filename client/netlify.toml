@@ -1,15 +1,24 @@
 [build]
+  # Fixes the permission error and builds the client
   command = "npm install && chmod +x ./node_modules/.bin/vite && npm run build"
   publish = "dist"
+  base = "client"
 
-# Redirect API calls to Render
+# RULE 1: Forward all API calls to your Render Backend
 [[redirects]]
   from = "/api/*"
   to = "https://dubaip2p.onrender.com/api/:splat"
   status = 200
   force = true
 
-# Fix for React Router page refreshes
+# RULE 2: Forward image uploads to Render
+[[redirects]]
+  from = "/uploads/*"
+  to = "https://dubaip2p.onrender.com/uploads/:splat"
+  status = 200
+  force = true
+
+# RULE 3: Fix for React Router page refreshes
 [[redirects]]
   from = "/*"
   to = "/index.html"
