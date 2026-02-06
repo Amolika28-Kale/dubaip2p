@@ -1,10 +1,23 @@
 [build]
-  # Netlify build command madhech install ani permissions set kara
   command = "npm install && chmod +x ./node_modules/.bin/vite && npm run build"
   publish = "dist"
 
+# Sends all /api requests to Render
 [[redirects]]
-  # React Router sathi he garajiche aahe
+  from = "/api/*"
+  to = "https://dubaip2p.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# Sends all /uploads requests to Render (for screenshots)
+[[redirects]]
+  from = "/uploads/*"
+  to = "https://dubaip2p.onrender.com/uploads/:splat"
+  status = 200
+  force = true
+
+# Prevents 404 on page refresh (React Router fix)
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
