@@ -11,7 +11,7 @@ export default function MasterAdmin(){
   const fetchStats = async ()=>{
     setLoading(true)
     try{
-      const res = await fetch('/api/exchange/admin/stats', { headers: { Authorization: `Bearer ${token}` } })
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/admin/stats', { headers: { Authorization: `Bearer ${token}` } })
       const d = await res.json()
       setStats(d)
     }catch(e){ console.error(e) }

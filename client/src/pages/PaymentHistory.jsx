@@ -9,7 +9,7 @@ export default function PaymentHistory(){
 
   const fetchHistory = async ()=>{
     try{
-      const res = await fetch('/api/exchange/my', { headers: { Authorization: `Bearer ${token}` }})
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/my', { headers: { Authorization: `Bearer ${token}` }})
       const d = await res.json()
       setTrades(d.trades || [])
     }catch(e){console.error(e)}

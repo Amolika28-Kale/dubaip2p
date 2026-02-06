@@ -21,7 +21,7 @@ export default function Checkout() {
 
   const fetchPaymentDetails = async () => {
     try {
-      const res = await fetch('/api/exchange/payment-details')
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/payment-details')
       const d = await res.json()
       setPaymentDetails(d.details || [])
     } catch (e) { console.error(e) }
@@ -34,7 +34,7 @@ export default function Checkout() {
     }
     setLoading(true); setError('')
     try {
-      const res = await fetch('/api/exchange/initiate', {
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/initiate', {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ sendMethod, receiveMethod, fiatAmount, walletAddress: wallet })
       })

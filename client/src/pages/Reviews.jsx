@@ -11,7 +11,7 @@ export default function Reviews(){
 
   const fetchReviews = async ()=>{
     try{
-      const res = await fetch('/api/review')
+      const res = await fetch('https://dubaip2p.onrender.com/api/review')
       const d = await res.json()
       setReviews(d.reviews || [])
     }catch(e){console.error(e)}
@@ -21,7 +21,7 @@ export default function Reviews(){
     if(!text || !token) return
     setLoading(true)
     try{
-      const res = await fetch('/api/review', {
+      const res = await fetch('https://dubaip2p.onrender.com/api/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ text })

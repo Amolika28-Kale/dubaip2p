@@ -20,9 +20,9 @@ export default function Landing() {
   const fetchData = async () => {
     try {
       const [rateRes, tradesRes, reservesRes] = await Promise.all([
-        fetch('/api/exchange/rate'),
-        fetch('/api/exchange/latest?limit=5'),
-        fetch('/api/exchange/reserves')
+        fetch('https://dubaip2p.onrender.com/api/exchange/rate'),
+        fetch('https://dubaip2p.onrender.com/api/exchange/latest?limit=5'),
+        fetch('https://dubaip2p.onrender.com/api/exchange/reserves')
       ])
       
       if (rateRes.ok) {

@@ -29,7 +29,7 @@ export default function TradeStatus(){
     fd.append('screenshot', file)
     fd.append('tradeId', tradeId)
     try{
-      const res = await fetch('/api/exchange/confirm-payment', {
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/confirm-payment', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: fd

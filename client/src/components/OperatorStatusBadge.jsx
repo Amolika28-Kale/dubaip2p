@@ -8,7 +8,7 @@ export default function OperatorStatusBadge() {
     const fetchStatus = async () => {
       try {
         // Change the URL to the public endpoint
-        const r = await fetch('/api/exchange/operator')
+        const r = await fetch('https://dubaip2p.onrender.com/api/exchange/operator')
         if (!r.ok) return
         const d = await r.json()
         if (mounted) setOnline(!!d.online)

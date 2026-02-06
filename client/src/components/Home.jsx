@@ -23,7 +23,7 @@ export default function Home() {
 
   const fetchRate = async () => {
     try {
-      const res = await fetch('/api/exchange/rate')
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/rate')
       const data = await res.json()
       if (data.rate) setRate(data.rate)
     } catch (e) {
@@ -33,7 +33,7 @@ export default function Home() {
 
   const fetchPaymentDetails = async () => {
     try {
-      const res = await fetch('/api/exchange/payment-details')
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/payment-details')
       const data = await res.json()
       setPaymentDetails(data.details || [])
     } catch (e) {
@@ -52,7 +52,7 @@ export default function Home() {
     setError('')
 
     try {
-      const res = await fetch('/api/exchange/initiate', {
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -82,7 +82,7 @@ export default function Home() {
     fd.append('tradeId', trade._id)
 
     try {
-      const res = await fetch('/api/exchange/confirm-payment', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd })
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/confirm-payment', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd })
       const d = await res.json()
       if (d.trade) setTrade(d.trade)
       else setError(d.message || 'Upload failed')

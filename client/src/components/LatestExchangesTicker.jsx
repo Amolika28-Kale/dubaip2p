@@ -7,7 +7,7 @@ export default function LatestExchangesTicker(){
     let mounted = true
     const fetchTrades = async ()=>{
       try{
-        const r = await fetch('/api/exchange/latest?limit=10')
+        const r = await fetch('https://dubaip2p.onrender.com/api/exchange/latest?limit=10')
         const d = await r.json()
         if(mounted) setTrades(d.trades || [])
       }catch(e){}

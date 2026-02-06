@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
 
   const fetchCurrentUser = async (t) => {
     try {
-      const res = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${t}` } })
+      const res = await fetch('https://dubaip2p.onrender.com/api/auth/me', { headers: { Authorization: `Bearer ${t}` } })
       if (res.ok) {
         const data = await res.json()
         setUser(data.user)
@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
   }
 
   const signup = async (email, password, username) => {
-    const res = await fetch('/api/auth/signup', {
+    const res = await fetch('https://dubaip2p.onrender.com/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, username })
@@ -48,7 +48,7 @@ export function AuthProvider({ children }) {
   }
 
   const updateProfile = async (username, password) => {
-    const res = await fetch('/api/auth/me', {
+    const res = await fetch('https://dubaip2p.onrender.com/api/auth/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ username, password })
@@ -62,11 +62,12 @@ export function AuthProvider({ children }) {
   }
 
   const login = async (email, password) => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    })
+fetch("https://dubaip2p.onrender.com/api/auth/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, password }),
+});
+
     const data = await res.json()
     if (data.token) {
       localStorage.setItem('token', data.token)

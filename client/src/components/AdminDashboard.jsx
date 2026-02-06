@@ -28,7 +28,7 @@ export default function AdminDashboard() {
 
   const fetchTrades = async () => {
     try {
-      const res = await fetch('/api/exchange/admin/list', { headers: { Authorization: `Bearer ${token}` } })
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/admin/list', { headers: { Authorization: `Bearer ${token}` } })
       if (res.status === 401) return alert('Unauthorized')
       const d = await res.json()
       setTrades(d.trades || [])
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
 
   const fetchRate = async () => {
     try {
-      const res = await fetch('/api/exchange/rate')
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/rate')
       const d = await res.json()
       setRate(d.rate)
     } catch (e) {
@@ -49,7 +49,7 @@ export default function AdminDashboard() {
 
   const fetchPaymentDetails = async () => {
     try {
-      const res = await fetch('/api/exchange/payment-details')
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/payment-details')
       const d = await res.json()
       setPaymentDetails(d.details || [])
     } catch (e) {
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
 
   const fetchOperator = async () => {
     try {
-      const res = await fetch('/api/exchange/admin/operator', { headers: { Authorization: `Bearer ${token}` } })
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/admin/operator', { headers: { Authorization: `Bearer ${token}` } })
       if (!res.ok) return
       const d = await res.json()
       // set a local flag
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
 
   const toggleOperator = async () => {
     try {
-      const res = await fetch('/api/exchange/admin/operator', {
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/admin/operator', {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ online: !operator })
       })
       const d = await res.json()
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
 
   const fetchReserves = async () => {
     try {
-      const res = await fetch('/api/exchange/reserves')
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/reserves')
       const d = await res.json()
       setReserves(d.reserves || {})
       setReservesText(JSON.stringify(d.reserves || {}, null, 2))
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
 
   const updateRate = async () => {
     try {
-      const res = await fetch('/api/exchange/admin/rate', {
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/admin/rate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ rate })
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
     if (!txid) return alert('Enter TXID')
     setLoading(true)
     try {
-      const res = await fetch('/api/exchange/admin/release', {
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/admin/release', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ tradeId, txid })
@@ -144,7 +144,7 @@ export default function AdminDashboard() {
 
   const savePaymentDetail = async (method, details) => {
     try {
-      const res = await fetch('/api/exchange/admin/payment-details', {
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/admin/payment-details', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ method, details })
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
         alert('Invalid JSON format')
         return
       }
-      const res = await fetch('/api/exchange/reserves', {
+      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/reserves', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ reserves: payload })
@@ -444,7 +444,7 @@ export default function AdminDashboard() {
 
 // Add reject action and reserves management
 async function rejectTradeRequest(tradeId, token) {
-  const res = await fetch('/api/exchange/admin/reject', {
+  const res = await fetch('https://dubaip2p.onrender.com/api/exchange/admin/reject', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ tradeId })
