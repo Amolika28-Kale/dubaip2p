@@ -13,8 +13,13 @@ const Setting = require('./models/Setting');
 const { MONGO_URI, PORT } = process.env;
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: [
+    'http://localhost:5173', 
+    'https://dubai-p2p.netlify.app' // Tumchi Netlify chi URL ithe taka
+  ],
+  credentials: true
+}));app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
