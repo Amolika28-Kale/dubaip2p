@@ -1,0 +1,18 @@
+[build]
+  # Ensures Vite has permission to run on Netlify's servers
+  command = "npm install && chmod +x ./node_modules/.bin/vite && npm run build"
+  publish = "dist"
+  base = "client"
+
+# This forwards all /api requests from Netlify to Render
+[[redirects]]
+  from = "/api/*"
+  to = "https://dubaip2p.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# This allows React Router to work on page refreshes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
