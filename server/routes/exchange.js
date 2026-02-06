@@ -7,17 +7,24 @@ const tradeController = require('../controllers/tradeController');
 const auth = require('../middleware/auth');
 const adminOnly = require('../middleware/adminOnly');
 
+const fs = require('fs');
+const uploadDir = path.join(__dirname, '..', 'uploads');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '..', 'uploads'));
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    const name = `${Date.now()}-${file.originalname.replace(/\s+/g, '_')}`;
-    cb(null, name);
+    cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g, '_'));
   }
 });
 
 const upload = multer({ storage });
+
 
 router.post('/initiate', auth, tradeController.initiateExchange);
 router.get('/trade/:tradeId', tradeController.getTrade);
