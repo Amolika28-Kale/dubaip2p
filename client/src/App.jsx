@@ -14,7 +14,7 @@ import Dashboard from './pages/Dashboard'
 import PaymentHistory from './pages/PaymentHistory'
 import Referral from './pages/Referral'
 import Reviews from './pages/Reviews'
-
+import { Toaster } from 'react-hot-toast';
 /**
  * Route protection logic:
  * - Redirects to login if not authenticated.
@@ -44,6 +44,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-[#0B0E11] text-white selection:bg-[#FCD535]/30">
       <Navbar />
+       <Toaster position="top-right" />
       <Routes>
         {/* PUBLIC ROUTES */}
         <Route path="/" element={<Landing />} />

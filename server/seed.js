@@ -37,9 +37,9 @@ async function seed() {
       {
         method: 'UPI',
         details: {
-          upiId: 'merchant@okhdfcbank',
+          upiId: 'amolikakale234@okhdfcbank',
           name: 'DubaiP2P Exchange',
-          phone: '+91-9876543210'
+          phone: '+91-8625043745'
         },
         active: true
       },
@@ -47,8 +47,8 @@ async function seed() {
         method: 'BANK',
         details: {
           accountName: 'DubaiP2P Exchange Ltd',
-          accountNumber: '1234567890123456',
-          ifsc: 'HDFC0001234',
+          accountNumber: '13058100003991',
+          ifsc: 'BARB0VELAPU',
           bankName: 'HDFC Bank'
         },
         active: true

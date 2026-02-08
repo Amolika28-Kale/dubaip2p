@@ -24,23 +24,14 @@ export default function Login() {
 
     const result = await login(email, password)
     if (result === true) {
-      navigate('/exchange')
+      navigate('/dashboard')
     } else {
       setError(result || 'Login failed')
     }
     setLoading(false)
   }
 
-  const demoLogin = async () => {
-    setLoading(true)
-    const result = await login('demo@dubaip2p.com', 'demo1234')
-    if (result === true) {
-      navigate('/exchange')
-    } else {
-      setError('Demo account not available. Please create a new account.')
-    }
-    setLoading(false)
-  }
+
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
@@ -99,13 +90,6 @@ export default function Login() {
             </div>
           </div>
 
-          <button
-            onClick={demoLogin}
-            disabled={loading}
-            className="w-full border border-[#FCD535]/30 text-[#FCD535] py-3 rounded-lg font-semibold hover:bg-[#FCD535]/10 disabled:opacity-50"
-          >
-            Try Demo Account
-          </button>
 
           <p className="text-center text-gray-400 text-sm mt-6">
             Don't have an account?{' '}

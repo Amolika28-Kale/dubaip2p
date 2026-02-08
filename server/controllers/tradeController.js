@@ -71,17 +71,18 @@ exports.confirmPayment = async (req, res) => {
 
     if (!req.file) return res.status(400).json({ message: 'screenshot file required' });
 
-    // store relative path
     trade.transactionScreenshot = `/uploads/${req.file.filename}`;
     trade.status = 'PAID';
-    await trade.save();
+    trade.paidAt = new Date(); // 🔑 TIMER START POINT
 
+    await trade.save();
     return res.json({ trade });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 exports.adminList = async (req, res) => {
   try {

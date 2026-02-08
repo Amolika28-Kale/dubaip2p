@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { Send, CreditCard, AlertCircle, Copy, Check } from 'lucide-react'
 import { AuthContext } from '../context/AuthContext'
+import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 export default function Home() {
   const { token } = useContext(AuthContext)
@@ -15,11 +17,49 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState('')
+  const VERIFY_WINDOW = 30 * 60 * 1000;
+const REVIEW_WINDOW = 72 * 60 * 60 * 1000;
+
+const [timeLeft, setTimeLeft] = useState(0);
+const [phase, setPhase] = useState(null); // VERIFY | REVIEW
+const navigate = useNavigate()
+
+useEffect(() => {
+  if (!trade || !trade.paidAt || trade.status !== 'PAID') return;
+
+  const paidTime = new Date(trade.paidAt).getTime();
+
+  const interval = setInterval(() => {
+    const now = Date.now();
+    const diff = now - paidTime;
+
+    if (diff < VERIFY_WINDOW) {
+      setPhase('VERIFY');
+      setTimeLeft(VERIFY_WINDOW - diff);
+    } else {
+      setPhase('REVIEW');
+      setTimeLeft(REVIEW_WINDOW - (diff - VERIFY_WINDOW));
+    }
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [trade]);
 
   useEffect(() => {
     fetchRate()
     fetchPaymentDetails()
   }, [])
+
+  const formatTime = (ms) => {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+
+  return h > 0
+    ? `${h}h ${m}m`
+    : `${m}:${s.toString().padStart(2, '0')}`;
+};
 
   const fetchRate = async () => {
     try {
@@ -71,27 +111,43 @@ export default function Home() {
       setLoading(false)
     }
   }
+const uploadScreenshot = async (file) => {
+  if (!trade) return setError('No active trade')
+  if (!file.type.startsWith('image/')) return setError('Please upload an image file')
 
-  const uploadScreenshot = async (file) => {
-    if (!trade) return setError('No active trade')
-    if (!file.type.startsWith('image/')) return setError('Please upload an image file')
+  setLoading(true)
+  const fd = new FormData()
+  fd.append('screenshot', file)
+  fd.append('tradeId', trade._id)
 
-    setLoading(true)
-    const fd = new FormData()
-    fd.append('screenshot', file)
-    fd.append('tradeId', trade._id)
+  try {
+    const res = await fetch(
+      'https://dubaip2p.onrender.com/api/exchange/confirm-payment',
+      {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      }
+    )
+    const d = await res.json()
 
-    try {
-      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/confirm-payment', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd })
-      const d = await res.json()
-      if (d.trade) setTrade(d.trade)
-      else setError(d.message || 'Upload failed')
-    } catch (e) {
-      setError('Upload failed')
-    } finally {
-      setLoading(false)
+  if (d.trade) {
+  setTrade(d.trade)
+      toast.success('Payment proof uploaded successfully ✅')
+
+  // 👇 redirect to My Exchanges
+  navigate('/dashboard')
+  
+    } else {
+      toast.error(d.message || 'Upload failed')
     }
+  } catch (e) {
+    toast.error('Upload failed')
+  } finally {
+    setLoading(false)
   }
+}
+
 
   const copyToClipboard = (text, id) => {
     navigator.clipboard.writeText(text)
@@ -270,18 +326,57 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Status: PAID -> Waiting for admin */}
-              {trade.status === 'PAID' && (
-                <div className="p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
-                  <div className="text-xs text-purple-300 flex items-center gap-2">
-                    <AlertCircle size={14} />
-                    Payment received. Waiting for admin verification...
-                  </div>
-                  {trade.transactionScreenshot && (
-                    <img src={trade.transactionScreenshot} alt="proof" className="mt-3 max-h-40 rounded" />
-                  )}
-                </div>
-              )}
+{trade.status === 'PAID' && phase === 'VERIFY' && (
+  <div className="p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
+    <div className="text-xs text-purple-300 flex items-center gap-2">
+      <AlertCircle size={14} />
+      Payment received. Verifying transaction…
+    </div>
+
+    <div className="mt-3 text-center">
+      <div className="text-2xl font-bold text-blue-400">
+        {formatTime(timeLeft)}
+      </div>
+      <div className="text-xs text-gray-400 mt-1">
+        Estimated time to receive USDT
+      </div>
+    </div>
+
+    {trade.transactionScreenshot && (
+      <img
+        src={trade.transactionScreenshot}
+        alt="proof"
+        className="mt-3 max-h-40 rounded"
+      />
+    )}
+  </div>
+)}
+<button
+  onClick={() => navigate('/dashboard')}
+  className="mt-3 w-full bg-zinc-800 text-white py-2 rounded-lg text-sm hover:bg-zinc-700"
+>
+  View in My Exchanges →
+</button>
+
+
+{trade.status === 'PAID' && phase === 'REVIEW' && (
+  <div className="p-4 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
+    <div className="text-xs text-yellow-300 flex items-center gap-2">
+      <AlertCircle size={14} />
+      Manual verification required
+    </div>
+
+    <div className="mt-3 text-center">
+      <div className="text-xl font-bold text-yellow-400">
+        {formatTime(timeLeft)}
+      </div>
+      <div className="text-xs text-gray-400 mt-1">
+        Verification may take up to 72 hours
+      </div>
+    </div>
+  </div>
+)}
+
 
               {/* Status: COMPLETED -> Show TXID */}
               {trade.status === 'COMPLETED' && (

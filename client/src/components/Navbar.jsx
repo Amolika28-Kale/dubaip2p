@@ -38,18 +38,18 @@ export default function Navbar() {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
           {/* SHARED LINKS */}
-          <Link to="/exchange" className={`${isActive('/exchange')} text-sm font-bold transition`}>
+          {/* <Link to="/exchange" className={`${isActive('/exchange')} text-sm font-bold transition`}>
             Exchange
-          </Link>
+          </Link> */}
 
           {/* ADMIN SPECIFIC LINKS */}
           {isAdmin && (
             <div className="flex items-center gap-6 border-l border-zinc-800 pl-6">
               <Link to="/admin" className={`${isActive('/admin')} text-sm font-bold flex items-center gap-2`}>
-                <ShieldCheck size={16} /> Admin Panel
+                <ShieldCheck size={16} /> Dashboard
               </Link>
               <Link to="/admin/master" className={`${isActive('/admin/master')} text-sm font-bold`}>
-                Master Settings
+                 Settings
               </Link>
             </div>
           )}

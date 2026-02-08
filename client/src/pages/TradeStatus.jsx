@@ -303,21 +303,7 @@ export default function TradeStatus(){
           </div>
         )}
 
-        {/* Action buttons */}
-        <div className="flex gap-4 justify-center mt-8">
-          <button
-            onClick={() => navigate('/my-exchanges')}
-            className="px-6 py-2 border border-zinc-600 text-gray-300 rounded hover:border-zinc-500 transition"
-          >
-            My Exchanges
-          </button>
-          <button
-            onClick={() => navigate('/')}
-            className="px-6 py-2 bg-[#FCD535] text-black font-bold rounded hover:bg-yellow-400 transition"
-          >
-            New Exchange
-          </button>
-        </div>
+    
       </div>
     </div>
   )
