@@ -38,9 +38,9 @@ export default function Navbar() {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
           {/* SHARED LINKS */}
-          {/* <Link to="/exchange" className={`${isActive('/exchange')} text-sm font-bold transition`}>
+          <Link to="/exchange" className={`${isActive('/exchange')} text-sm font-bold transition`}>
             Exchange
-          </Link> */}
+          </Link>
 
           {/* ADMIN SPECIFIC LINKS */}
           {isAdmin && (
