@@ -1,4 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
+import { getCurrentUser, signupUser, loginUser, initiateSignup, verifySignup, updateProfile as updateUserProfile } from "../services/authService";
+  import { resendOtp as resendOtpApi } from "../services/authService";
 
 export const AuthContext = createContext();
 
@@ -21,21 +23,7 @@ export function AuthProvider({ children }) {
 
   const fetchCurrentUser = async (t) => {
     try {
-      const res = await fetch(
-        "https://dubaip2p.onrender.com/api/auth/me",
-        {
-          headers: {
-            Authorization: `Bearer ${t}`,
-          },
-        }
-      );
-
-      if (!res.ok) {
-        logout();
-        return;
-      }
-
-      const data = await res.json();
+      const data = await getCurrentUser(t);
       setUser(data.user);
     } catch (err) {
       console.error(err);
@@ -48,21 +36,7 @@ export function AuthProvider({ children }) {
   /* ================= SIGNUP ================= */
   const signup = async (email, password, username) => {
     try {
-      const res = await fetch(
-        "https://dubaip2p.onrender.com/api/auth/signup",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, username }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        return false;
-      }
-
+      const data = await signupUser(email, password, username);
       localStorage.setItem("token", data.token);
       setToken(data.token);
       setUser(data.user);
@@ -73,24 +47,32 @@ export function AuthProvider({ children }) {
     }
   };
 
+const initiateOtpSignup = async (name, email, phone, password) => {
+  try {
+    const data = await initiateSignup(name, email, phone, password);
+    return { success: true, message: data.message };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+};
+
+const verifyOtpSignup = async (email, otp) => {
+  try {
+    const data = await verifySignup(email, otp);
+    localStorage.setItem("token", data.token);
+    setToken(data.token);
+    setUser(data.user);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+};
+
+
   /* ================= LOGIN ================= */
   const login = async (email, password) => {
     try {
-      const res = await fetch(
-        "https://dubaip2p.onrender.com/api/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        return data.message || "Login failed";
-      }
-
+      const data = await loginUser(email, password);
       localStorage.setItem("token", data.token);
       setToken(data.token);
       setUser(data.user);
@@ -100,6 +82,16 @@ export function AuthProvider({ children }) {
       return "Server error. Try again later.";
     }
   };
+
+
+const resendSignupOtp = async (email) => {
+  try {
+    await resendOtpApi(email);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+};
 
   /* ================= UPDATE PROFILE ================= */
   const updateProfile = async (username, password) => {
@@ -145,7 +137,10 @@ export function AuthProvider({ children }) {
         token,
         loading,
         signup,
+        initiateOtpSignup,
+        verifyOtpSignup,
         login,
+        resendSignupOtp,
         logout,
         updateProfile,
         isAuthenticated: !!token,

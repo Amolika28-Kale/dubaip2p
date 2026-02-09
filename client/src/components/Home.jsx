@@ -3,6 +3,7 @@ import { Send, CreditCard, AlertCircle, Copy, Check } from 'lucide-react'
 import { AuthContext } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
+import { getExchangeRate, getPaymentDetails, initiateExchange, confirmPayment } from '../services/exchangeService'
 
 export default function Home() {
   const { token } = useContext(AuthContext)
@@ -63,8 +64,7 @@ useEffect(() => {
 
   const fetchRate = async () => {
     try {
-      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/rate')
-      const data = await res.json()
+      const data = await getExchangeRate()
       if (data.rate) setRate(data.rate)
     } catch (e) {
       console.error(e)
@@ -73,8 +73,7 @@ useEffect(() => {
 
   const fetchPaymentDetails = async () => {
     try {
-      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/payment-details')
-      const data = await res.json()
+      const data = await getPaymentDetails()
       setPaymentDetails(data.details || [])
     } catch (e) {
       console.error(e)

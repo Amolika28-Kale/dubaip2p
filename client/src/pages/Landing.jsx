@@ -13,8 +13,11 @@ import {
   Wallet
 } from 'lucide-react'
 import { AuthContext } from '../context/AuthContext'
+import { getExchangeRate } from '../services/exchangeService'
 import LiveReserveWidget from '../components/LiveReserveWidget'
 import LatestExchangesTicker from '../components/LatestExchangesTicker'
+import { getReviews } from '../services/reviewService'
+
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -22,13 +25,32 @@ export default function Landing() {
 
   const [rate, setRate] = useState(82.5)
   const [fiatAmount, setFiatAmount] = useState(1000)
+  const [reviews, setReviews] = useState([])
 
-  useEffect(() => {
-    fetch('https://dubaip2p.onrender.com/api/exchange/rate')
-      .then(r => r.json())
-      .then(d => setRate(d.rate || 82.5))
-      .catch(() => {})
-  }, [])
+
+useEffect(() => {
+  const fetchRate = async () => {
+    try {
+      const d = await getExchangeRate()
+      setRate(d.rate || 82.5)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const fetchReviews = async () => {
+    try {
+      const d = await getReviews()
+      setReviews(d.reviews || [])
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  fetchRate()
+  fetchReviews()
+}, [])
+
 
   const cryptoAmount = (fiatAmount / rate).toFixed(4)
 
@@ -177,30 +199,48 @@ export default function Landing() {
         <LatestExchangesTicker />
       </section>
 
-      {/* ================= TESTIMONIALS ================= */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <h2 className="text-4xl font-bold text-center mb-16">
-          Trusted by Real Traders
-        </h2>
+{/* ================= TESTIMONIALS ================= */}
+<section className="max-w-7xl mx-auto px-6 py-20">
+  <h2 className="text-4xl font-bold text-center mb-16">
+    Trusted by Real Traders
+  </h2>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {[
-            ['Raj Kumar', 'Completed 14 trades. Smooth & fast.'],
-            ['Priya Singh', 'Best INR to USDT rates I found.'],
-            ['Amit Patel', 'Support is quick and genuine.']
-          ].map(([name, text]) => (
-            <div key={name} className="bg-zinc-900 border border-zinc-700 p-6 rounded-xl">
-              <div className="flex mb-3">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={16} className="fill-[#FCD535] text-[#FCD535]" />
-                ))}
-              </div>
-              <p className="text-gray-300 mb-4">"{text}"</p>
-              <p className="font-bold text-[#FCD535]">— {name}</p>
-            </div>
-          ))}
+  {reviews.length === 0 ? (
+    <p className="text-center text-gray-500">No reviews yet</p>
+  ) : (
+    <div className="grid md:grid-cols-3 gap-8">
+      {reviews.slice(0, 6).map((r) => (
+        <div
+          key={r._id}
+          className="bg-zinc-900 border border-zinc-700 p-6 rounded-xl"
+        >
+          <div className="flex mb-3">
+            {[...Array(r.rating || 5)].map((_, i) => (
+              <Star
+                key={i}
+                size={16}
+                className="fill-[#FCD535] text-[#FCD535]"
+              />
+            ))}
+          </div>
+
+          <p className="text-gray-300 mb-4">
+            "{r.text}"
+          </p>
+
+          <p className="font-bold text-[#FCD535]">
+            — {r.username}
+          </p>
+
+          <p className="text-xs text-gray-500 mt-1">
+            {new Date(r.createdAt).toLocaleDateString()}
+          </p>
         </div>
-      </section>
+      ))}
+    </div>
+  )}
+</section>
+
 
       {/* ================= FINAL CTA ================= */}
       <section className="text-center py-24 bg-gradient-to-r from-[#FCD535]/10 to-transparent">

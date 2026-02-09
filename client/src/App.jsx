@@ -15,6 +15,7 @@ import PaymentHistory from './pages/PaymentHistory'
 import Referral from './pages/Referral'
 import Reviews from './pages/Reviews'
 import { Toaster } from 'react-hot-toast';
+import ForgotPassword from './pages/ForgotPassword'
 /**
  * Route protection logic:
  * - Redirects to login if not authenticated.
@@ -50,6 +51,7 @@ function AppContent() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* USER EXCHANGE FLOW (Admins redirected to /admin) */}
         <Route path="/exchange" element={

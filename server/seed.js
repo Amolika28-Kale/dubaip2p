@@ -29,7 +29,7 @@ async function seed() {
     console.log('Cleared existing data');
 
     // Seed Admin User Only
-    await User.create({ email: 'admin@dubaip2p.com', password: 'admin1234', username: 'admin', isAdmin: true });
+    await User.create({ email: 'admin@dubaip2p.com', password: 'admin1234', username: 'admin', isAdmin: true, isEmailVerified: true });
     console.log('✓ Admin user created');
 
     // Seed Payment Details

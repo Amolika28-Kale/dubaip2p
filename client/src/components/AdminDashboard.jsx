@@ -1,6 +1,19 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { Shield, X } from 'lucide-react'
 import { AuthContext } from '../context/AuthContext'
+import {
+  getAdminTrades,
+  getExchangeRate,
+  getPaymentDetails,
+  getOperatorStatus,
+  toggleOperatorStatus,
+  getReserves,
+  updateExchangeRate,
+  releaseTrade,
+  rejectTrade,
+  savePaymentDetails,
+  updateReserves
+} from '../services/adminService'
 
 export default function AdminDashboard() {
   const { token, isAdmin, loading } = useContext(AuthContext)
@@ -39,147 +52,125 @@ export default function AdminDashboard() {
 
   /* ================= API FUNCTIONS ================= */
   const fetchTrades = async () => {
-    const res = await fetch(
-      'https://dubaip2p.onrender.com/api/exchange/admin/list',
-      { headers: { Authorization: `Bearer ${token}` } }
-    )
-    const d = await res.json()
-    setTrades(d.trades || [])
+    try {
+      const d = await getAdminTrades(token)
+      setTrades(d.trades || [])
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const fetchRate = async () => {
-    const res = await fetch('https://dubaip2p.onrender.com/api/exchange/rate')
-    const d = await res.json()
-    setRate(d.rate)
+    try {
+      const d = await getExchangeRate()
+      setRate(d.rate)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const fetchPaymentDetails = async () => {
-    const res = await fetch('https://dubaip2p.onrender.com/api/exchange/payment-details')
-    const d = await res.json()
-    setPaymentDetails(d.details || [])
+    try {
+      const d = await getPaymentDetails()
+      setPaymentDetails(d.details || [])
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const fetchOperator = async () => {
-    const res = await fetch(
-      'https://dubaip2p.onrender.com/api/exchange/admin/operator',
-      { headers: { Authorization: `Bearer ${token}` } }
-    )
-    if (!res.ok) return
-    const d = await res.json()
-    setOperator(!!d.online)
+    try {
+      const d = await getOperatorStatus(token)
+      setOperator(!!d.online)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const toggleOperator = async () => {
-    const res = await fetch(
-      'https://dubaip2p.onrender.com/api/exchange/admin/operator',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ online: !operator }),
-      }
-    )
-    const d = await res.json()
-    setOperator(!!d.online)
+    try {
+      const d = await toggleOperatorStatus(token)
+      setOperator(!!d.online)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const fetchReserves = async () => {
-    const res = await fetch('https://dubaip2p.onrender.com/api/exchange/reserves')
-    const d = await res.json()
-    setReserves(d.reserves || {})
-    setReservesText(JSON.stringify(d.reserves || {}, null, 2))
+    try {
+      const d = await getReserves()
+      setReserves(d.reserves || {})
+      setReservesText(JSON.stringify(d.reserves || {}, null, 2))
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const updateRate = async () => {
-    await fetch('https://dubaip2p.onrender.com/api/exchange/admin/rate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ rate }),
-    })
-    setRateEdit(false)
+    try {
+      await updateExchangeRate(token, rate)
+      setRateEdit(false)
+    } catch (e) {
+      console.error(e)
+      alert('Failed to update rate')
+    }
   }
 
   const releaseAssets = async (tradeId) => {
     if (!txid) return alert('TXID required')
     setActionLoading(true)
 
-    const res = await fetch(
-      'https://dubaip2p.onrender.com/api/exchange/admin/release',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ tradeId, txid }),
+    try {
+      const d = await releaseTrade(token, tradeId, txid)
+      if (d.trade) {
+        setSelected(null)
+        setTxid('')
+        fetchTrades()
+      } else {
+        alert(d.message || 'Failed')
       }
-    )
-
-    const d = await res.json()
-    if (d.trade) {
-      setSelected(null)
-      setTxid('')
-      fetchTrades()
-    } else {
-      alert(d.message || 'Failed')
+    } catch (e) {
+      console.error(e)
+      alert('Failed to release trade')
     }
 
     setActionLoading(false)
   }
 
-  const rejectTrade = async (tradeId) => {
+  const rejectTradeHandler = async (tradeId) => {
     if (!window.confirm('Reject this trade?')) return
     setActionLoading(true)
 
-    await fetch('https://dubaip2p.onrender.com/api/exchange/admin/reject', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ tradeId }),
-    })
+    try {
+      await rejectTrade(token, tradeId)
+      setSelected(null)
+      fetchTrades()
+    } catch (e) {
+      console.error(e)
+      alert('Failed to reject trade')
+    }
 
-    setSelected(null)
-    fetchTrades()
     setActionLoading(false)
   }
 
   const savePaymentDetail = async (method, details) => {
-    await fetch(
-      'https://dubaip2p.onrender.com/api/exchange/admin/payment-details',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ method, details }),
-      }
-    )
-    setEditingMethod(null)
-    fetchPaymentDetails()
+    try {
+      await savePaymentDetails(token, method, details)
+      setEditingMethod(null)
+      fetchPaymentDetails()
+    } catch (e) {
+      console.error(e)
+      alert('Failed to save payment details')
+    }
   }
 
-  const updateReserves = async () => {
+  const updateReservesHandler = async () => {
     try {
       const parsed = JSON.parse(reservesText)
-      await fetch('https://dubaip2p.onrender.com/api/exchange/reserves', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ reserves: parsed }),
-      })
+      await updateReserves(token, parsed)
       setReservesEdit(false)
       fetchReserves()
-    } catch {
+    } catch (e) {
       alert('Invalid JSON')
     }
   }
@@ -255,14 +246,52 @@ export default function AdminDashboard() {
 
       {/* MODAL */}
       {selected && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="bg-black border border-yellow-400/30 p-6 rounded w-full max-w-xl">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 overflow-y-auto">
+          <div className="bg-black border border-yellow-400/30 p-6 rounded w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between mb-4">
-              <h3 className="text-yellow-400 font-bold">Verify Trade</h3>
+              <h3 className="text-yellow-400 font-bold">Verify Trade - {selected._id.slice(-8)}</h3>
               <button onClick={() => setSelected(null)}>
                 <X />
               </button>
             </div>
+
+            {/* User Details */}
+            {selected.user && (
+              <div className="mb-4 p-3 bg-zinc-900 rounded border border-zinc-700">
+                <h4 className="text-green-400 font-semibold mb-2">User Details</h4>
+                <p><strong>Username:</strong> {selected.user.username || 'N/A'}</p>
+                <p><strong>Email:</strong> {selected.user.email}</p>
+                <p><strong>Balance:</strong> ₹{selected.user.balance}</p>
+                <p><strong>Referral Code:</strong> {selected.user.referralCode}</p>
+                <p><strong>Joined:</strong> {new Date(selected.user.createdAt).toLocaleString()}</p>
+              </div>
+            )}
+
+            {/* Trade Details */}
+            <div className="mb-4 p-3 bg-zinc-900 rounded border border-zinc-700">
+              <h4 className="text-blue-400 font-semibold mb-2">Trade Details</h4>
+              <p><strong>Send Method:</strong> {selected.sendMethod}</p>
+              <p><strong>Receive Method:</strong> {selected.receiveMethod}</p>
+              <p><strong>Fiat Amount:</strong> ₹{selected.fiatAmount}</p>
+              <p><strong>Crypto Amount:</strong> {selected.cryptoAmount} USDT</p>
+              <p><strong>Rate:</strong> ₹{selected.rate} per USDT</p>
+              <p><strong>Wallet Address:</strong> {selected.walletAddress}</p>
+              <p><strong>Status:</strong> {selected.status}</p>
+              <p><strong>Paid At:</strong> {selected.paidAt ? new Date(selected.paidAt).toLocaleString() : 'N/A'}</p>
+              <p><strong>Created:</strong> {new Date(selected.createdAt).toLocaleString()}</p>
+            </div>
+
+            {/* Screenshot */}
+            {selected.transactionScreenshot && (
+              <div className="mb-4 p-3 bg-zinc-900 rounded border border-zinc-700">
+                <h4 className="text-red-400 font-semibold mb-2">Payment Screenshot</h4>
+                <img
+                  src={`https://dubaip2p.onrender.com${selected.transactionScreenshot}`}
+                  alt="Payment Screenshot"
+                  className="w-full max-h-64 object-contain border border-zinc-600 rounded"
+                />
+              </div>
+            )}
 
             <input
               value={txid}
@@ -281,7 +310,7 @@ export default function AdminDashboard() {
 
             <button
               disabled={actionLoading}
-              onClick={() => rejectTrade(selected._id)}
+              onClick={() => rejectTradeHandler(selected._id)}
               className="w-full bg-red-600 py-2 rounded"
             >
               Reject Trade

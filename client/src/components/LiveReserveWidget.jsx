@@ -7,8 +7,7 @@ export default function LiveReserveWidget(){
     let mounted = true
     const fetchRes = async ()=>{
       try{
-        const r = await fetch('https://dubaip2p.onrender.com/api/exchange/reserves')
-        const d = await r.json()
+        const d = await getReserves()
         if(mounted) setReserves(d.reserves || {})
       }catch(e){ }
     }

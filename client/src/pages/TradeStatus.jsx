@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import { CheckCircle, Clock, Upload, AlertCircle, Copy, Eye } from 'lucide-react'
+import { getTradeById } from '../services/exchangeService'
 
 export default function TradeStatus(){
   const { tradeId } = useParams()
@@ -11,13 +12,48 @@ export default function TradeStatus(){
   const [file, setFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(0)
+  const [phase, setPhase] = useState('30min')
 
   useEffect(()=>{ fetchTrade() }, [])
 
+  useEffect(() => {
+    if (trade && trade.status === 'PAID' && trade.paidAt) {
+      const paidTime = new Date(trade.paidAt).getTime()
+      const now = Date.now()
+      const elapsed = now - paidTime
+      const thirtyMin = 30 * 60 * 1000
+      const seventyTwoHours = 72 * 60 * 60 * 1000
+
+      if (elapsed < thirtyMin) {
+        setPhase('30min')
+        setTimeLeft(thirtyMin - elapsed)
+      } else {
+        setPhase('72hr')
+        setTimeLeft(seventyTwoHours - elapsed)
+      }
+
+      const interval = setInterval(() => {
+        const currentElapsed = Date.now() - paidTime
+        if (currentElapsed < thirtyMin) {
+          setTimeLeft(thirtyMin - currentElapsed)
+          setPhase('30min')
+        } else {
+          setTimeLeft(seventyTwoHours - currentElapsed)
+          setPhase('72hr')
+        }
+        if (timeLeft <= 0) {
+          clearInterval(interval)
+        }
+      }, 1000)
+
+      return () => clearInterval(interval)
+    }
+  }, [trade])
+
   const fetchTrade = async ()=>{
     try{
-      const res = await fetch(`/api/exchange/trade/${tradeId}`)
-      const d = await res.json()
+      const d = await getTradeById(tradeId)
       if(d.trade) setTrade(d.trade)
     }catch(e){console.error(e)}
   }
@@ -35,7 +71,10 @@ export default function TradeStatus(){
         body: fd
       })
       const d = await res.json()
-      if(d.trade) setTrade(d.trade)
+      if(d.trade) {
+        setTrade(d.trade)
+        navigate('/trade-status/' + tradeId)
+      }
     }catch(e){console.error(e)}
     setLoading(false)
   }
@@ -67,6 +106,14 @@ export default function TradeStatus(){
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text)
+  }
+
+  const formatTime = (ms) => {
+    const totalSeconds = Math.floor(ms / 1000)
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
   }
 
   if(!trade) return (
@@ -240,10 +287,17 @@ export default function TradeStatus(){
               <Clock className="text-blue-500 mx-auto mb-4" size={48} />
               <h3 className="text-xl font-bold text-blue-400 mb-2">Payment Submitted</h3>
               <p className="text-gray-400 mb-4">Your payment proof has been uploaded successfully</p>
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-                <Clock size={16} className="text-blue-400" />
-                <span className="text-blue-400">Awaiting admin verification</span>
-              </div>
+              {phase === '30min' ? (
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+                  <Clock size={16} className="text-blue-400" />
+                  <span className="text-blue-400">Verification in progress: {formatTime(timeLeft)}</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-900/20 border border-red-500/30 rounded-lg">
+                  <AlertCircle size={16} className="text-red-400" />
+                  <span className="text-red-400">Something went wrong, it will take {formatTime(timeLeft)} to verify</span>
+                </div>
+              )}
             </div>
           </div>
         )}

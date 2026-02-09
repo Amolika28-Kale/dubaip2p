@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { getOperatorStatus } from '../services/exchangeService'
 
 export default function OperatorStatusBadge() {
   const [online, setOnline] = useState(false)

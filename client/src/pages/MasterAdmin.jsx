@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
+import { getAdminStats } from '../services/exchangeService'
 
 export default function MasterAdmin(){
   const { token, isAdmin } = useContext(AuthContext)
@@ -11,8 +12,7 @@ export default function MasterAdmin(){
   const fetchStats = async ()=>{
     setLoading(true)
     try{
-      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/admin/stats', { headers: { Authorization: `Bearer ${token}` } })
-      const d = await res.json()
+      const d = await getAdminStats(token)
       setStats(d)
     }catch(e){ console.error(e) }
     setLoading(false)

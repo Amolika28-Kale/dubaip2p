@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
+import { getReviews, submitReview } from '../services/reviewService'
 
 export default function Reviews(){
   const { token, user } = useContext(AuthContext)
@@ -11,8 +12,7 @@ export default function Reviews(){
 
   const fetchReviews = async ()=>{
     try{
-      const res = await fetch('https://dubaip2p.onrender.com/api/review')
-      const d = await res.json()
+      const d = await getReviews()
       setReviews(d.reviews || [])
     }catch(e){console.error(e)}
   }
@@ -21,12 +21,7 @@ export default function Reviews(){
     if(!text || !token) return
     setLoading(true)
     try{
-      const res = await fetch('https://dubaip2p.onrender.com/api/review', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ text })
-      })
-      const d = await res.json()
+      const d = await submitReview({ text, token })
       if(d.review){
         setReviews([d.review, ...reviews])
         setText('')

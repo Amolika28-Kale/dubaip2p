@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
+import { getMyExchanges } from '../services/exchangeService'
 
 export default function PaymentHistory(){
   const { token } = useContext(AuthContext)
@@ -9,8 +10,7 @@ export default function PaymentHistory(){
 
   const fetchHistory = async ()=>{
     try{
-      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/my', { headers: { Authorization: `Bearer ${token}` }})
-      const d = await res.json()
+      const d = await getMyExchanges(token)
       setTrades(d.trades || [])
     }catch(e){console.error(e)}
   }

@@ -48,9 +48,10 @@ router.post('/admin/reject', auth, adminOnly, tradeController.rejectTrade);
 // routes/exchange.js
 
 // 1. PUBLIC: Anyone can see if you are online (Used by Badge)
-router.get('/operator', tradeController.getOperatorStatus); 
+router.get('/operator', tradeController.getOperatorStatus);
 
-// 2. PRIVATE: Only Admin can toggle status (Used by AdminDashboard)
+// 2. PRIVATE: Only Admin can fetch/toggle status (Used by AdminDashboard)
+router.get('/admin/operator', auth, adminOnly, tradeController.getOperatorStatus);
 router.post('/admin/operator', auth, adminOnly, tradeController.setOperatorStatus);
 
 // Public endpoints

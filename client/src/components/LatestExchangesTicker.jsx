@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRightLeft } from 'lucide-react'
+import { getLatestExchanges } from '../services/exchangeService'
 
 export default function LatestExchangesTicker() {
   const [trades, setTrades] = useState([])
@@ -11,10 +12,7 @@ export default function LatestExchangesTicker() {
 
     const fetchTrades = async () => {
       try {
-        const r = await fetch(
-          'https://dubaip2p.onrender.com/api/exchange/latest?limit=10'
-        )
-        const d = await r.json()
+        const d = await getLatestExchanges(10)
 
         if (!mounted) return
 

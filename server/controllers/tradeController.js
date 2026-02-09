@@ -76,6 +76,14 @@ exports.confirmPayment = async (req, res) => {
     trade.paidAt = new Date(); // 🔑 TIMER START POINT
 
     await trade.save();
+
+    // Send admin notification
+    const User = require('../models/User');
+    const user = await User.findById(trade.userId);
+    if (user) {
+      await sendAdminNotification(trade, user);
+    }
+
     return res.json({ trade });
   } catch (err) {
     console.error(err);

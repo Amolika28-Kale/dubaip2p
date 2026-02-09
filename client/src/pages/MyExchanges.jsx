@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
+import { getMyExchanges } from '../services/exchangeService'
 import { Eye, Clock, CheckCircle, AlertCircle, ArrowRight, RefreshCw } from 'lucide-react'
 
 export default function MyExchanges(){
@@ -15,8 +16,7 @@ export default function MyExchanges(){
   const fetchTrades = async ()=>{
     setLoading(true)
     try{
-      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/my', { headers: { Authorization: `Bearer ${token}` }})
-      const d = await res.json()
+      const d = await getMyExchanges(token)
       setTrades(d.trades || [])
     }catch(e){console.error(e)}
     setLoading(false)
@@ -113,7 +113,7 @@ export default function MyExchanges(){
               </p>
             </div>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/exchange')}
               className="px-6 py-3 bg-[#FCD535] text-black font-bold rounded-lg hover:bg-yellow-400 transition"
             >
               Start Your First Exchange

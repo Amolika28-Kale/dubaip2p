@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
+import { getPaymentDetails, initiateExchange } from '../services/exchangeService'
 import { ArrowRight, Copy, CheckCircle, Clock, Shield, Zap } from 'lucide-react'
 
 export default function Checkout() {
@@ -34,11 +35,7 @@ export default function Checkout() {
     }
     setLoading(true); setError('')
     try {
-      const res = await fetch('https://dubaip2p.onrender.com/api/exchange/initiate', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ sendMethod, receiveMethod, fiatAmount, walletAddress: wallet })
-      })
-      const data = await res.json()
+      const data = await initiateExchange(token, { sendMethod, receiveMethod, fiatAmount, walletAddress: wallet })
       if (data.trade) {
         navigate(`/trade/${data.trade._id}`)
       } else setError(data.message || 'Could not create trade')

@@ -71,6 +71,9 @@ export default function Login() {
                 placeholder="Enter your password"
               />
             </div>
+<Link to="/forgot-password" className="text-sm text-[#FCD535] hover:underline">
+  Forgot password?
+</Link>
 
             <button
               type="submit"
@@ -99,9 +102,6 @@ export default function Login() {
           </p>
         </div>
 
-        <p className="text-center text-gray-500 text-xs mt-4">
-          Demo account: demo@dubaip2p.com / demo1234
-        </p>
       </div>
     </div>
   )
