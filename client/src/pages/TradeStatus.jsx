@@ -75,7 +75,7 @@ export default function TradeStatus(){
       const d = await res.json()
       if(d.trade) {
         setTrade(d.trade)
-        navigate('/trade-status/' + tradeId)
+      navigate(`/trade/${d.trade._id}`)
       }
     }catch(e){console.error(e)}
     setLoading(false)
