@@ -29,10 +29,14 @@ export const getOperatorStatus = async (token) => {
   return res.json();
 };
 
-export const toggleOperatorStatus = async (token) => {
+export const toggleOperatorStatus = async (token, currentStatus) => {
   const res = await fetch(`${API_BASE}/exchange/admin/operator`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { 
+      'Content-Type': 'application/json', // 🔑 Critical: Tells server to expect JSON
+      Authorization: `Bearer ${token}` 
+    },
+    body: JSON.stringify({ online: !currentStatus }), // 🔑 Send the toggle value
   });
   if (!res.ok) throw new Error('Failed to toggle operator');
   return res.json();
@@ -106,5 +110,13 @@ export const updateReserves = async (token, reserves) => {
     body: JSON.stringify({ reserves }),
   });
   if (!res.ok) throw new Error('Failed to update reserves');
+  return res.json();
+};
+// In adminService.js (ensure the path is correct)
+export const getAllUsers = async (token) => {
+  const res = await fetch(`${API_BASE}/auth/list`, { // Changed from /admin/user/list to /user/list
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Failed to fetch users');
   return res.json();
 };

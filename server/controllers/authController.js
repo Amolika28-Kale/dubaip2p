@@ -298,8 +298,20 @@ const resetPassword = async (req, res) => {
   res.json({ success: true, message: "Password reset successful" });
 };
 
+// Add this to your authController.js
+const getAllUsers = async (req, res) => {
+  try {
+    const User = require('../models/User'); // Ensure model is imported
+    const users = await User.find().select('-password').sort({ createdAt: -1 }).lean();
+    return res.json({ users });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
 
 // Now this export line will work
-module.exports = { signup, verifyOtp, login, getCurrentUser, updateProfile, getUserById, resendOtp, forgotPassword, resetPassword };
+module.exports = { signup, verifyOtp, login, getCurrentUser, updateProfile, getUserById, resendOtp, forgotPassword, resetPassword, getAllUsers };
 

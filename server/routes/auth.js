@@ -17,5 +17,6 @@ router.post('/reset-password', authController.resetPassword);
 
 // Admin routes
 router.get('/admin/user/:userId', auth, adminOnly, authController.getUserById);
-
+// 🔑 ADD THIS ROUTE:
+router.get('/list', auth, adminOnly, authController.getAllUsers);
 module.exports = router;

@@ -1,53 +1,85 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
-import { getAdminStats } from '../services/exchangeService'
+import { getAdminStats, getLatestExchanges } from '../services/exchangeService'
+import { BarChart3, Users, DollarSign, Clock, Shield } from 'lucide-react'
 
 export default function MasterAdmin(){
   const { token, isAdmin } = useContext(AuthContext)
   const [stats, setStats] = useState(null)
+  const [recent, setRecent] = useState([])
   const [loading, setLoading] = useState(false)
 
-  useEffect(()=>{ if(isAdmin) fetchStats() }, [isAdmin])
+  useEffect(()=>{ if(isAdmin) loadMasterData() }, [isAdmin])
 
-  const fetchStats = async ()=>{
+  const loadMasterData = async () => {
     setLoading(true)
-    try{
-      const d = await getAdminStats(token)
-      setStats(d)
-    }catch(e){ console.error(e) }
+    try {
+      const [s, l] = await Promise.all([getAdminStats(token), getLatestExchanges(5)])
+      setStats(s)
+      setRecent(l.trades || [])
+    } catch(e) { console.error(e) }
     setLoading(false)
   }
 
   if(!isAdmin) return <div className="p-6 text-gray-400">Admin access required</div>
 
   return (
-    <div className="p-6 max-w-5xl">
-      <h2 className="text-2xl font-bold mb-4">Master Admin Overview</h2>
-      {loading && <div>Loading...</div>}
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="p-4 bg-zinc-900 rounded border border-zinc-700">
-            <div className="text-sm text-gray-400">Active Requests</div>
-            <div className="text-2xl font-bold text-[#FCD535]">{stats.activeRequests}</div>
-          </div>
-          <div className="p-4 bg-zinc-900 rounded border border-zinc-700">
-            <div className="text-sm text-gray-400">Daily Volume (₹)</div>
-            <div className="text-2xl font-bold text-[#FCD535]">{stats.dailyVolume}</div>
-          </div>
-          <div className="p-4 bg-zinc-900 rounded border border-zinc-700">
-            <div className="text-sm text-gray-400">Active Users (24h)</div>
-            <div className="text-2xl font-bold text-[#FCD535]">{stats.activeUsers}</div>
+    <div className="p-6 max-w-6xl mx-auto space-y-8">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-black text-white">MASTER COMMAND CENTER</h2>
+        <button onClick={loadMasterData} className="text-xs bg-zinc-800 px-3 py-1 rounded text-yellow-400">Refresh Stats</button>
+      </div>
+
+      {/* STAT CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="24h Volume" value={`₹${stats?.dailyVolume || 0}`} icon={<BarChart3 size={20}/>} color="text-green-400" />
+        <StatCard label="Active Users" value={stats?.activeUsers || 0} icon={<Users size={20}/>} color="text-blue-400" />
+        <StatCard label="Pending Verify" value={stats?.paidCount || 0} icon={<Clock size={20}/>} color="text-yellow-400" />
+        <StatCard label="Total Success" value={stats?.completedCount || 0} icon={<DollarSign size={20}/>} color="text-purple-400" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* RECENT ACTIVITY LIST */}
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
+          <h3 className="text-sm font-bold text-gray-400 mb-4 uppercase">Latest Global Activity</h3>
+          <div className="space-y-4">
+            {recent.map((trade, i) => (
+              <div key={i} className="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <div>
+                  <div className="text-sm font-bold">Trade #{trade._id.slice(-6)}</div>
+                  <div className="text-[10px] text-gray-500">{new Date(trade.createdAt).toLocaleString()}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-bold text-yellow-400">₹{trade.fiatAmount}</div>
+                  <div className={`text-[10px] ${trade.status === 'COMPLETED' ? 'text-green-500' : 'text-zinc-500'}`}>{trade.status}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      )}
 
-      <div className="bg-zinc-900 p-4 rounded border border-zinc-700">
-        <h3 className="font-bold mb-2">Quick Actions</h3>
-        <div className="flex gap-2">
-          <button onClick={()=>window.location.href='/admin'} className="px-4 py-2 bg-[#FCD535] rounded">Open Admin Panel</button>
-          <button onClick={fetchStats} className="px-4 py-2 bg-zinc-700 rounded">Refresh</button>
+        {/* SYSTEM STATUS */}
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 flex flex-col justify-center items-center text-center">
+          <div className="w-16 h-16 bg-yellow-400/10 rounded-full flex items-center justify-center mb-4">
+            <Shield className="text-yellow-400" size={32} />
+          </div>
+          <h3 className="font-bold text-white mb-2">Security & Maintenance</h3>
+          <p className="text-xs text-gray-500 mb-6">Access controls and global system configurations are currently active.</p>
+          <button onClick={()=>window.location.href='/admin'} className="w-full py-3 bg-yellow-400 text-black font-black rounded-lg">
+            OPEN ADMIN DASHBOARD
+          </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+function StatCard({ label, value, icon, color }) {
+  return (
+    <div className="bg-zinc-900 p-5 rounded-xl border border-zinc-800">
+      <div className={`mb-3 ${color}`}>{icon}</div>
+      <p className="text-gray-500 text-xs font-medium">{label}</p>
+      <p className="text-2xl font-black text-white">{value}</p>
     </div>
   )
 }

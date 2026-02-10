@@ -66,6 +66,8 @@ export default function TradeStatus(){
     fd.append('tradeId', tradeId)
     try{
       const res = await fetch('https://dubaip2p.onrender.com/api/exchange/confirm-payment', {
+            // const res = await fetch('http://localhost:4000/api/exchange/confirm-payment', {
+
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: fd
@@ -115,6 +117,17 @@ export default function TradeStatus(){
     const seconds = totalSeconds % 60
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
   }
+  const getProgress = () => {
+  if (!trade?.paidAt) return 0
+
+  const paidTime = new Date(trade.paidAt).getTime()
+  const now = Date.now()
+  const elapsed = now - paidTime
+  const thirtyMin = 30 * 60 * 1000
+
+  return Math.min(100, Math.floor((elapsed / thirtyMin) * 100))
+}
+
 
   if(!trade) return (
     <div className="min-h-screen bg-gradient-to-b from-black via-zinc-900 to-black flex items-center justify-center">
@@ -281,26 +294,110 @@ export default function TradeStatus(){
           </div>
         )}
 
-        {trade.status === 'PAID' && (
-          <div className="bg-zinc-900/70 border border-zinc-700 rounded-xl p-6">
-            <div className="text-center">
-              <Clock className="text-blue-500 mx-auto mb-4" size={48} />
-              <h3 className="text-xl font-bold text-blue-400 mb-2">Payment Submitted</h3>
-              <p className="text-gray-400 mb-4">Your payment proof has been uploaded successfully</p>
-              {phase === '30min' ? (
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-                  <Clock size={16} className="text-blue-400" />
-                  <span className="text-blue-400">Verification in progress: {formatTime(timeLeft)}</span>
-                </div>
-              ) : (
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-900/20 border border-red-500/30 rounded-lg">
-                  <AlertCircle size={16} className="text-red-400" />
-                  <span className="text-red-400">Something went wrong, it will take {formatTime(timeLeft)} to verify</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+    {trade.status === 'PAID' && (
+  <div className="bg-zinc-900/70 border border-zinc-700 rounded-xl p-8 mt-6">
+    
+    {/* Icon */}
+    <div className="w-14 h-14 mx-auto rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+      <CheckCircle className="text-green-500" size={32} />
+    </div>
+
+    {/* Title */}
+    <h3 className="text-xl font-bold text-center mb-1">
+      Transaction Submitted Successfully!
+    </h3>
+
+    <p className="text-center text-gray-400 text-sm mb-6">
+      Your payment is being verified.
+    </p>
+
+    {/* Transfer ID */}
+    <div className="bg-zinc-800 rounded-lg p-3 mb-6 text-center">
+      <div className="text-xs text-gray-400 mb-1">Transfer ID</div>
+      <div className="font-mono text-green-400">
+        {trade._id.slice(-8)}
+      </div>
+    </div>
+
+    {/* Timer label */}
+    <div className="text-center text-sm text-gray-400 mb-1">
+      Estimated time to receive USDT
+    </div>
+
+    {/* Timer */}
+    <div
+      className={`text-center text-4xl font-bold mb-2 ${
+        phase === '30min' ? 'text-blue-400' : 'text-red-400'
+      }`}
+    >
+      {formatTime(timeLeft)}
+    </div>
+
+    {/* Message */}
+    {phase === '30min' ? (
+      <p className="text-center text-xs text-gray-400 mb-4">
+        Your USDT will be automatically sent to your wallet
+      </p>
+    ) : (
+      <p className="text-center text-xs text-red-400 mb-4">
+        Something went wrong, verification may take up to 72 hours
+      </p>
+    )}
+
+    {/* Progress bar */}
+    <div className="w-full bg-zinc-700 rounded-full h-2 overflow-hidden mb-2">
+      <div
+        className={`h-full transition-all duration-1000 ${
+          phase === '30min' ? 'bg-blue-500' : 'bg-red-500'
+        }`}
+        style={{
+          width:
+            phase === '30min'
+              ? `${Math.min(
+                  100,
+                  ((30 * 60 * 1000 - timeLeft) /
+                    (30 * 60 * 1000)) *
+                    100
+                )}%`
+              : '100%',
+        }}
+      />
+    </div>
+
+    <div className="text-center text-xs text-gray-400">
+      {phase === '30min' ? 'Processing…' : 'Delayed'}
+    </div>
+    {/* Buttons */}
+      <div className="flex gap-4 justify-center">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-semibold"
+        >
+          Close (Timer continues)
+        </button>
+
+        <button
+          onClick={fetchTrade}
+          className="px-5 py-2 bg-zinc-700 hover:bg-zinc-600 rounded-lg"
+        >
+          Refresh Status
+        </button>
+      </div>
+
+      {/* Reminder */}
+      <div className="mt-6 bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4 text-left">
+        <h4 className="text-yellow-400 font-semibold mb-2">
+          Important Reminders
+        </h4>
+        <ul className="text-sm text-gray-300 space-y-1">
+          <li>• Do not make another payment for this order</li>
+          <li>• USDT will be credited automatically</li>
+          <li>• If delayed, admin will manually verify within 72 hours</li>
+        </ul>
+      </div>
+  </div>
+)}
+
 
         {trade.status === 'COMPLETED' && (
           <div className="bg-zinc-900/70 border border-zinc-700 rounded-xl p-6">
@@ -324,13 +421,13 @@ export default function TradeStatus(){
 
               <div className="flex gap-4 justify-center">
                 <button
-                  onClick={() => navigate('/my-exchanges')}
+                  onClick={() => navigate('/dashboard')}
                   className="px-6 py-2 bg-[#FCD535] text-black font-bold rounded hover:bg-yellow-400 transition"
                 >
                   View All Exchanges
                 </button>
                 <button
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate('/exchange')}
                   className="px-6 py-2 border border-zinc-600 text-gray-300 rounded hover:border-zinc-500 transition"
                 >
                   Start New Exchange

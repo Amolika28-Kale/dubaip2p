@@ -5,7 +5,7 @@ import { LogOut, Menu, X, ChevronDown, History, Users, Star, LayoutDashboard, Us
 import OperatorStatusBadge from './OperatorStatusBadge'
 
 export default function Navbar() {
-  const { user, logout, isAuthenticated, isAdmin } = useContext(AuthContext)
+  const { logout, isAuthenticated, isAdmin } = useContext(AuthContext)
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -20,7 +20,6 @@ export default function Navbar() {
 
   const isActive = (path) => location.pathname === path ? 'text-[#FCD535]' : 'text-gray-400 hover:text-white'
 
-  // Hide navbar on auth pages
   if (['/', '/login', '/signup'].includes(location.pathname)) return null
 
   return (
@@ -37,14 +36,17 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
-          {/* SHARED LINKS */}
-          <Link to="/exchange" className={`${isActive('/exchange')} text-sm font-bold transition`}>
-            Exchange
-          </Link>
+          
+          {/* 🔑 EXCHANGE LINK - Hidden for Admin */}
+          {!isAdmin && (
+            <Link to="/exchange" className={`${isActive('/exchange')} text-sm font-bold transition`}>
+              Exchange
+            </Link>
+          )}
 
           {/* ADMIN SPECIFIC LINKS */}
           {isAdmin && (
-            <div className="flex items-center gap-6 border-l border-zinc-800 pl-6">
+            <div className="flex items-center gap-6">
               <Link to="/admin" className={`${isActive('/admin')} text-sm font-bold flex items-center gap-2`}>
                 <ShieldCheck size={16} /> Dashboard
               </Link>
@@ -54,7 +56,7 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* USER SPECIFIC DROPDOWN (Mirroring inr2usdt.com) */}
+          {/* USER SPECIFIC DROPDOWN */}
           {isAuthenticated && !isAdmin && (
             <div className="relative">
               <button 
@@ -89,9 +91,9 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* ADMIN LOGOUT (Simple Button) */}
+          {/* ADMIN LOGOUT */}
           {isAdmin && (
-            <button onClick={handleLogout} className="p-2 hover:bg-red-500/10 rounded-lg text-red-500 transition">
+            <button onClick={handleLogout} className="p-2 hover:bg-red-500/10 rounded-lg text-red-500 transition border border-zinc-800 ml-2">
               <LogOut size={18} />
             </button>
           )}
@@ -106,7 +108,13 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-zinc-900 border-t border-zinc-800 p-4 space-y-2">
-          <Link to="/exchange" className="block p-3 text-gray-300 font-bold" onClick={() => setMenuOpen(false)}>Exchange</Link>
+          {/* Mobile Exchange - Hidden for Admin */}
+          {!isAdmin && (
+            <Link to="/exchange" className="block p-3 text-gray-300 font-bold" onClick={() => setMenuOpen(false)}>
+              Exchange
+            </Link>
+          )}
+          
           {isAdmin ? (
             <>
               <Link to="/admin" className="block p-3 text-yellow-500 font-bold" onClick={() => setMenuOpen(false)}>Admin Dashboard</Link>
@@ -119,7 +127,7 @@ export default function Navbar() {
               <Link to="/referral" className="block p-3 text-gray-300" onClick={() => setMenuOpen(false)}>Referrals</Link>
             </>
           )}
-          <button onClick={handleLogout} className="w-full text-left p-3 text-red-500 font-bold">Logout</button>
+          <button onClick={handleLogout} className="w-full text-left p-3 text-red-500 font-bold border-t border-zinc-800 mt-2">Logout</button>
         </div>
       )}
     </nav>

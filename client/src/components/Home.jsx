@@ -23,6 +23,8 @@ const REVIEW_WINDOW = 72 * 60 * 60 * 1000;
 
 const [timeLeft, setTimeLeft] = useState(0);
 const [phase, setPhase] = useState(null); // VERIFY | REVIEW
+const [paymentFile, setPaymentFile] = useState(null)
+
 const navigate = useNavigate()
 
 useEffect(() => {
@@ -112,7 +114,7 @@ useEffect(() => {
   }
 const uploadScreenshot = async (file) => {
   if (!trade) return setError('No active trade')
-  if (!file.type.startsWith('image/')) return setError('Please upload an image file')
+  if (!file.type.startsWith('image/')) return setError('Please upload image')
 
   setLoading(true)
   const fd = new FormData()
@@ -122,21 +124,21 @@ const uploadScreenshot = async (file) => {
   try {
     const res = await fetch(
       'https://dubaip2p.onrender.com/api/exchange/confirm-payment',
+      // 'http://localhost:4000/api/exchange/confirm-payment',
       {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
       }
     )
+
     const d = await res.json()
 
-  if (d.trade) {
-  setTrade(d.trade)
-      toast.success('Payment proof uploaded successfully ✅')
+    if (d.trade) {
+      toast.success('Payment proof submitted ✅')
 
-  // 👇 redirect to My Exchanges
-  navigate('/dashboard')
-  
+      // 🔥 redirect to Trade Status page
+      navigate(`/trade/${d.trade._id}`)
     } else {
       toast.error(d.message || 'Upload failed')
     }
@@ -165,7 +167,7 @@ const uploadScreenshot = async (file) => {
         <div className="flex items-center gap-3 mb-4">
           <div className="p-3 bg-[#FCD535] text-black rounded-lg"><Send size={20} /></div>
           <div>
-            <h2 className="text-xl font-bold">Quick Exchange</h2>
+            <h2 className="text-xl font-bold">Quick Exchanges</h2>
             <p className="text-xs text-gray-400">Direct INR → USDT swap</p>
           </div>
         </div>
@@ -262,47 +264,50 @@ const uploadScreenshot = async (file) => {
                     <CreditCard size={14} />
                     Admin {sendMethod.includes('UPI') ? 'UPI' : 'Bank'} Details
                   </div>
-                  {sendMethod.includes('UPI') ? (
-                    <>
-                      <div className="text-sm mb-2">
-                        <div className="text-gray-400 text-xs">UPI ID</div>
-                        <div className="flex items-center justify-between font-mono text-base">
-                          <span>{getPaymentDetail()?.details?.upiId}</span>
-                          <button
-                            onClick={() => copyToClipboard(getPaymentDetail()?.details?.upiId, 'upi')}
-                            className="text-[#FCD535] hover:text-[#FCD535]/80"
-                          >
-                            {copied === 'upi' ? <Check size={16} /> : <Copy size={16} />}
-                          </button>
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        <div>{getPaymentDetail()?.details?.name}</div>
-                        <div>{getPaymentDetail()?.details?.phone}</div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="text-xs space-y-2">
-                        <div>
-                          <span className="text-gray-400">Account: </span>
-                          <span>{getPaymentDetail()?.details?.accountName}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Number: </span>
-                          <span className="font-mono">{getPaymentDetail()?.details?.accountNumber}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">IFSC: </span>
-                          <span className="font-mono">{getPaymentDetail()?.details?.ifsc}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Bank: </span>
-                          <span>{getPaymentDetail()?.details?.bankName}</span>
-                        </div>
-                      </div>
-                    </>
-                  )}
+               {sendMethod.includes('UPI') && (
+  <>
+    {/* UPI ID */}
+    <div className="text-sm mb-3">
+      <div className="text-gray-400 text-xs">UPI ID</div>
+      <div className="flex items-center justify-between font-mono text-base">
+        <span>{getPaymentDetail()?.details?.upiId}</span>
+        <button
+          onClick={() =>
+            copyToClipboard(getPaymentDetail()?.details?.upiId, 'upi')
+          }
+          className="text-[#FCD535]"
+        >
+          {copied === 'upi' ? <Check size={16} /> : <Copy size={16} />}
+        </button>
+      </div>
+    </div>
+
+    {/* Admin Name + Phone */}
+    <div className="text-xs text-gray-400 mb-4">
+      <div>{getPaymentDetail()?.details?.name}</div>
+      <div>{getPaymentDetail()?.details?.phone}</div>
+    </div>
+
+    {/* 🔥 UPI QR CODE */}
+    <div className="flex flex-col items-center gap-2 mt-3">
+      <div className="text-xs text-gray-400">Scan & Pay using UPI</div>
+
+      <img
+        src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+          `upi://pay?pa=${getPaymentDetail()?.details?.upiId}&pn=${getPaymentDetail()?.details?.name}&cu=INR`
+        )}`}
+        alt="Admin UPI QR"
+        className="w-44 h-44 rounded-lg border border-zinc-700 bg-white p-2"
+      />
+
+      <div className="text-[11px] text-gray-500 text-center">
+        After payment, upload screenshot below
+      </div>
+    </div>
+  </>
+)}
+
+          
                 </div>
               )}
 
@@ -314,42 +319,89 @@ const uploadScreenshot = async (file) => {
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm text-gray-300">Upload Payment Screenshot</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => uploadScreenshot(e.target.files[0])}
-                      disabled={loading}
-                      className="w-full text-xs"
-                    />
+                   <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => setPaymentFile(e.target.files[0])}
+  disabled={loading}
+  className="w-full text-xs"
+/>
+{paymentFile && (
+  <button
+    onClick={() => uploadScreenshot(paymentFile)}
+    disabled={loading}
+    className="mt-3 w-full bg-[#FCD535] text-black py-2 rounded-lg font-semibold hover:bg-yellow-400 disabled:opacity-50"
+  >
+    {loading ? 'Submitting...' : 'Submit Payment Proof'}
+  </button>
+)}
+
+
                   </div>
                 </div>
               )}
 
 {trade.status === 'PAID' && phase === 'VERIFY' && (
-  <div className="p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
-    <div className="text-xs text-purple-300 flex items-center gap-2">
-      <AlertCircle size={14} />
-      Payment received. Verifying transaction…
-    </div>
+  <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-md text-center">
 
-    <div className="mt-3 text-center">
-      <div className="text-2xl font-bold text-blue-400">
-        {formatTime(timeLeft)}
+      <div className="mx-auto w-12 h-12 rounded-full bg-green-600 flex items-center justify-center mb-4">
+        <Check className="text-white" />
       </div>
-      <div className="text-xs text-gray-400 mt-1">
-        Estimated time to receive USDT
+
+      <h2 className="text-xl font-bold mb-1">
+        Transaction Submitted Successfully!
+      </h2>
+
+      <p className="text-sm text-gray-400 mb-4">
+        Your payment is being verified.  
+        You will receive your USDT within the next 30 minutes.
+      </p>
+
+      <div className="bg-black/40 border border-zinc-700 rounded-lg p-3 mb-4">
+        <div className="text-xs text-gray-400">Transfer ID</div>
+        <div className="text-sm font-mono text-[#FCD535]">
+          {trade._id}
+        </div>
+      </div>
+
+      <div className="mb-3">
+        <div className="text-3xl font-bold text-blue-400">
+          {formatTime(timeLeft)}
+        </div>
+        <div className="text-xs text-gray-400">
+          Estimated time to receive USDT
+        </div>
+      </div>
+
+      <div className="h-2 bg-zinc-700 rounded overflow-hidden mb-4">
+        <div
+          className="h-full bg-blue-500 transition-all"
+          style={{
+            width: `${((VERIFY_WINDOW - timeLeft) / VERIFY_WINDOW) * 100}%`
+          }}
+        />
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={() => setTrade({ ...trade })}
+          className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-sm"
+        >
+          Close (Timer continues)
+        </button>
+
+        <button
+          onClick={() => window.location.reload()}
+          className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-2 rounded-lg text-sm"
+        >
+          Refresh Status
+        </button>
       </div>
     </div>
-
-    {trade.transactionScreenshot && (
-      <img
-        src={trade.transactionScreenshot}
-        alt="proof"
-        className="mt-3 max-h-40 rounded"
-      />
-    )}
   </div>
 )}
+
 <button
   onClick={() => navigate('/dashboard')}
   className="mt-3 w-full bg-zinc-800 text-white py-2 rounded-lg text-sm hover:bg-zinc-700"

@@ -73,9 +73,10 @@ const result = await verifyOtpSignup(email, otp)
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-[#FCD535] mb-2">DubaiP2P</h1>
-          <p className="text-gray-400">
-            {step === 1 ? 'Create your account' : 'Verify your phone number'}
-          </p>
+         <p className="text-gray-400">
+  {step === 1 ? 'Create your account' : 'Verify your email'}
+</p>
+
         </div>
 
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-8">
@@ -143,9 +144,14 @@ const result = await verifyOtpSignup(email, otp)
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               <div className="text-center mb-4">
-                <p className="text-gray-400 text-sm">
-                  We've sent a 6-digit code to {phone}
-                </p>
+               <p className="text-gray-400 text-sm">
+  We've sent a 6-digit code to <span className="text-white">{email}</span>
+</p>
+
+<p className="text-gray-400 text-xs mt-1">
+  (Check your inbox & spam folder)
+</p>
+
               </div>
 
               <div>

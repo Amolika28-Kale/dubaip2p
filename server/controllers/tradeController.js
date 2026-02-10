@@ -81,7 +81,7 @@ exports.confirmPayment = async (req, res) => {
     const User = require('../models/User');
     const user = await User.findById(trade.userId);
     if (user) {
-      await sendAdminNotification(trade, user);
+      // await sendAdminNotification(trade, user);
     }
 
     return res.json({ trade });
