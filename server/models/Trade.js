@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 
 const TradeSchema = new mongoose.Schema({
   userId: { type: String, required: false },
-
+  // 🔑 Added 'type' to distinguish flows
+  type: { type: String, enum: ['BUY', 'SELL'], default: 'BUY' }, 
+  
   sendMethod: { type: String, required: true },
   receiveMethod: { type: String, required: true },
 
@@ -19,10 +21,10 @@ const TradeSchema = new mongoose.Schema({
     default: 'PENDING'
   },
 
-  paidAt: { type: Date },          // screenshot upload time
-  reviewStartedAt: { type: Date }, // 30 min over
-
+  paidAt: { type: Date },
+  reviewStartedAt: { type: Date },
   txid: { type: String },
+  rejectionReason: { type: String }, // 🔑 Added for Cancelled status
 
   createdAt: { type: Date, default: Date.now }
 });

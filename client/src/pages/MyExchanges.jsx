@@ -56,26 +56,27 @@ export default function MyExchanges(){
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-zinc-900 to-black text-white">
-      <div className="max-w-6xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-gradient-to-b from-black via-zinc-900 to-black text-white pb-10">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
+        
+        {/* Header - Stacked on Mobile */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-[#FCD535] mb-2">My Exchanges</h1>
-            <p className="text-gray-400">Track all your P2P exchange transactions</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-[#FCD535] mb-1">My Exchanges</h1>
+            <p className="text-sm text-gray-400">Track all your P2P exchange transactions</p>
           </div>
           <button
             onClick={fetchTrades}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-all active:scale-95 text-sm"
           >
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             Refresh
           </button>
         </div>
 
-        {/* Status Filter Tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto">
+        {/* Status Filter Tabs - Swipable on Mobile */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
           {[
             { key: 'all', label: 'All', count: statusCounts.all },
             { key: 'pending', label: 'Pending', count: statusCounts.pending },
@@ -86,10 +87,10 @@ export default function MyExchanges(){
             <button
               key={key}
               onClick={() => setFilter(key)}
-              className={`px-4 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all whitespace-nowrap border ${
                 filter === key
-                  ? 'bg-[#FCD535] text-black'
-                  : 'bg-zinc-800 hover:bg-zinc-700 text-gray-300'
+                  ? 'bg-[#FCD535] text-black border-[#FCD535]'
+                  : 'bg-zinc-800/50 hover:bg-zinc-700 text-gray-300 border-zinc-700'
               }`}
             >
               {label} ({count})
@@ -99,24 +100,24 @@ export default function MyExchanges(){
 
         {/* Trades List */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FCD535] mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading your exchanges...</p>
+          <div className="text-center py-20">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#FCD535] mx-auto mb-4"></div>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Loading Records...</p>
           </div>
         ) : filteredTrades.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-500 mb-4">
-              <Clock size={48} className="mx-auto mb-4 opacity-50" />
+          <div className="text-center py-16 bg-zinc-900/30 border border-zinc-800 rounded-3xl">
+            <div className="text-gray-500 mb-4 px-4">
+              <Clock size={48} className="mx-auto mb-4 opacity-20" />
               <h3 className="text-xl font-semibold mb-2">No exchanges found</h3>
-              <p className="text-gray-400">
-                {filter === 'all' ? 'You haven\'t made any exchanges yet.' : `No ${filter} exchanges found.`}
+              <p className="text-sm text-gray-400 max-w-xs mx-auto">
+                {filter === 'all' ? 'You haven\'t made any exchanges yet.' : `No ${filter} exchanges found in your history.`}
               </p>
             </div>
             <button
               onClick={() => navigate('/exchange')}
-              className="px-6 py-3 bg-[#FCD535] text-black font-bold rounded-lg hover:bg-yellow-400 transition"
+              className="mt-2 px-6 py-3 bg-[#FCD535] text-black font-bold rounded-xl hover:bg-yellow-400 transition-all active:scale-95 text-sm"
             >
-              Start Your First Exchange
+              Start New Exchange
             </button>
           </div>
         ) : (
@@ -124,57 +125,57 @@ export default function MyExchanges(){
             {filteredTrades.map(trade => (
               <div
                 key={trade._id}
-                className="bg-zinc-900/70 border border-zinc-700 rounded-xl p-6 hover:border-zinc-600 transition cursor-pointer"
+                className="bg-[#161A1E] border border-zinc-800 rounded-2xl p-4 md:p-6 hover:border-zinc-600 transition-all cursor-pointer active:bg-zinc-800/50"
                 onClick={() => navigate(`/trade/${trade._id}`)}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="text-sm font-mono text-gray-400">
+                <div className="flex flex-wrap items-center justify-between mb-6 gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="text-[10px] md:text-xs font-mono text-gray-500 bg-black/40 px-2 py-1 rounded">
                       #{trade._id.slice(-8)}
                     </div>
-                    <div className={`flex items-center gap-2 px-3 py-1 rounded-lg border text-sm ${getStatusColor(trade.status)}`}>
+                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wider ${getStatusColor(trade.status)}`}>
                       {getStatusIcon(trade.status)}
                       {trade.status}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-400 hover:text-white transition">
-                    <Eye size={16} />
-                    <span className="text-sm">View Details</span>
-                    <ArrowRight size={16} />
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-white transition-colors">
+                    <Eye size={14} />
+                    <span>Details</span>
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">You Send</p>
-                    <p className="text-lg font-bold text-red-400">₹{trade.fiatAmount.toLocaleString()}</p>
-                    <p className="text-sm text-gray-500">{trade.sendMethod}</p>
+                {/* Grid stacks on mobile */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="border-l-2 border-red-500/20 pl-3">
+                    <p className="text-[10px] text-gray-500 uppercase font-bold mb-1 tracking-widest">You Send</p>
+                    <p className="text-base md:text-lg font-bold text-red-400">₹{trade.fiatAmount.toLocaleString()}</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">{trade.sendMethod}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">You Receive</p>
-                    <p className="text-lg font-bold text-green-400">{trade.cryptoAmount} USDT</p>
-                    <p className="text-sm text-gray-500">{trade.receiveMethod}</p>
+                  <div className="border-l-2 border-green-500/20 pl-3">
+                    <p className="text-[10px] text-gray-500 uppercase font-bold mb-1 tracking-widest">You Receive</p>
+                    <p className="text-base md:text-lg font-bold text-green-400">{trade.cryptoAmount} USDT</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">{trade.receiveMethod}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Exchange Rate</p>
-                    <p className="text-sm font-semibold">1 USDT = ₹{trade.rate.toFixed(2)}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(trade.createdAt).toLocaleDateString()}
+                  <div className="border-l-2 border-yellow-500/20 pl-3">
+                    <p className="text-[10px] text-gray-500 uppercase font-bold mb-1 tracking-widest">Rate & Date</p>
+                    <p className="text-sm font-semibold text-white">1 USDT = ₹{trade.rate.toFixed(2)}</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">
+                      {new Date(trade.createdAt).toLocaleDateString()} • {new Date(trade.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
                 </div>
 
                 {trade.status === 'COMPLETED' && trade.txid && (
-                  <div className="mt-4 p-3 bg-green-900/20 border border-green-500/30 rounded-lg">
-                    <p className="text-xs text-gray-400 mb-1">Transaction Hash:</p>
-                    <p className="text-xs font-mono text-green-300 break-all">{trade.txid}</p>
+                  <div className="mt-6 p-3 bg-green-900/10 border border-green-500/20 rounded-xl">
+                    <p className="text-[10px] text-green-500 font-bold uppercase mb-1">Transaction Hash:</p>
+                    <p className="text-[10px] font-mono text-gray-400 break-all leading-relaxed">{trade.txid}</p>
                   </div>
                 )}
 
                 {trade.status === 'CANCELLED' && trade.rejectionReason && (
-                  <div className="mt-4 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
-                    <p className="text-xs text-red-400 mb-1">Cancellation Reason:</p>
-                    <p className="text-sm text-red-300">{trade.rejectionReason}</p>
+                  <div className="mt-6 p-3 bg-red-900/10 border border-red-500/20 rounded-xl">
+                    <p className="text-[10px] text-red-500 font-bold uppercase mb-1 tracking-tighter">Cancellation Reason:</p>
+                    <p className="text-xs text-gray-400 italic">"{trade.rejectionReason}"</p>
                   </div>
                 )}
               </div>
@@ -182,24 +183,24 @@ export default function MyExchanges(){
           </div>
         )}
 
-        {/* Summary Stats */}
+        {/* Summary Stats - Responsive Grid */}
         {trades.length > 0 && (
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-zinc-900/70 border border-zinc-700 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-[#FCD535]">{statusCounts.completed}</p>
-              <p className="text-sm text-gray-400">Completed</p>
+          <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-[#FCD535]">{statusCounts.completed}</p>
+              <p className="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Completed</p>
             </div>
-            <div className="bg-zinc-900/70 border border-zinc-700 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-blue-400">{statusCounts.paid}</p>
-              <p className="text-sm text-gray-400">Awaiting</p>
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-blue-400">{statusCounts.paid}</p>
+              <p className="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Awaiting</p>
             </div>
-            <div className="bg-zinc-900/70 border border-zinc-700 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-yellow-400">{statusCounts.pending}</p>
-              <p className="text-sm text-gray-400">Pending</p>
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-yellow-400">{statusCounts.pending}</p>
+              <p className="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Pending</p>
             </div>
-            <div className="bg-zinc-900/70 border border-zinc-700 rounded-lg p-4 text-center">
-              <p className="text-2xl font-bold text-red-400">{statusCounts.cancelled}</p>
-              <p className="text-sm text-gray-400">Cancelled</p>
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-4 text-center">
+              <p className="text-xl md:text-2xl font-bold text-red-400">{statusCounts.cancelled}</p>
+              <p className="text-[10px] uppercase font-bold text-gray-500 tracking-widest">Cancelled</p>
             </div>
           </div>
         )}

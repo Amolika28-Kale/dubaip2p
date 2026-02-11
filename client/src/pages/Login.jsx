@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Lock, Mail, ArrowRight } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -31,77 +31,108 @@ export default function Login() {
     setLoading(false)
   }
 
-
-
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-[#0B0E11] flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
+        
+        {/* Branding - Mobile Optimized Sizes */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-[#FCD535] mb-2">DubaiP2P</h1>
-          <p className="text-gray-400">Sign in to your account</p>
+          <h1 className="text-4xl md:text-5xl font-black text-[#FCD535] uppercase italic tracking-tighter mb-2">
+            DubaiP2P
+          </h1>
+          <p className="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-widest">
+            Institutional Grade Exchange
+          </p>
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-8">
+        {/* Login Card - Consistent 3xl Rounded Style */}
+        <div className="bg-[#161A1E] border border-zinc-800 rounded-[2rem] p-6 md:p-10 shadow-2xl shadow-black/50">
+          
           {error && (
-            <div className="mb-4 p-3 bg-red-900/30 border border-red-500 rounded-lg flex gap-2">
-              <AlertCircle size={18} className="text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-300">{error}</p>
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-center gap-3 animate-in slide-in-from-top-1">
+              <AlertCircle size={18} className="text-red-500 shrink-0" />
+              <p className="text-xs font-bold text-red-400 uppercase tracking-tight">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email Field */}
             <div>
-              <label className="block text-sm text-gray-300 mb-2">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:border-[#FCD535] focus:outline-none"
-                placeholder="you@example.com"
-              />
+              <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-black ml-1">
+                Email Address
+              </label>
+              <div className="relative group">
+                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#FCD535] transition-colors" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-sm text-white outline-none focus:border-yellow-500/50 transition-all font-medium"
+                  placeholder="name@example.com"
+                />
+              </div>
             </div>
 
+            {/* Password Field */}
             <div>
-              <label className="block text-sm text-gray-300 mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:border-[#FCD535] focus:outline-none"
-                placeholder="Enter your password"
-              />
+              <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-black ml-1">
+                Security Password
+              </label>
+              <div className="relative group">
+                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#FCD535] transition-colors" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-sm text-white outline-none focus:border-yellow-500/50 transition-all font-medium"
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
-<Link to="/forgot-password" className="text-sm text-[#FCD535] hover:underline">
-  Forgot password?
-</Link>
+
+            <div className="flex justify-end pr-1">
+              <Link to="/forgot-password" size="sm" className="text-[10px] font-black uppercase tracking-widest text-[#FCD535] hover:text-yellow-400 transition-colors">
+                Forgot Password?
+              </Link>
+            </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#FCD535] text-black py-3 rounded-lg font-semibold hover:bg-[#FCD535]/90 disabled:opacity-50 mt-6"
+              className="w-full flex items-center justify-center gap-2 py-4 bg-[#FCD535] text-black rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-yellow-400 active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-yellow-500/10 mt-6"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? (
+                <div className="h-5 w-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  Enter Dashboard <ArrowRight size={16} />
+                </>
+              )}
             </button>
           </form>
 
-          <div className="relative my-6">
+          {/* Divider */}
+          <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-zinc-700"></div>
+              <div className="w-full border-t border-zinc-800"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-zinc-900 text-gray-500">OR</span>
+            <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
+              <span className="px-4 bg-[#161A1E] text-zinc-600">New to Platform?</span>
             </div>
           </div>
 
-
-          <p className="text-center text-gray-400 text-sm mt-6">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-[#FCD535] hover:underline">
-              Create one
+          <p className="text-center text-zinc-500 text-[10px] font-black uppercase tracking-widest">
+            No account?{' '}
+            <Link to="/signup" className="text-[#FCD535] hover:text-yellow-400 transition-colors ml-1 underline decoration-yellow-500/30 underline-offset-4">
+              Register ID
             </Link>
           </p>
         </div>
 
+        {/* Footer info - Mobile responsive */}
+        <p className="text-center text-[9px] text-zinc-600 mt-8 uppercase font-bold tracking-[0.2em]">
+          Secure P2P Node • Encrypted Connection
+        </p>
       </div>
     </div>
   )

@@ -35,25 +35,31 @@ async function getRateFromDB() {
 
 exports.initiateExchange = async (req, res) => {
   try {
-    const { sendMethod, receiveMethod, fiatAmount, walletAddress } = req.body;
-    if (!sendMethod || !receiveMethod || !fiatAmount || !walletAddress) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
+    const { sendMethod, receiveMethod, fiatAmount, cryptoAmount, walletAddress, type } = req.body;
+    
     const rate = await getRateFromDB();
-    const cryptoAmount = parseFloat((fiatAmount / rate).toFixed(6));
+    // Logic: If selling USDT, users usually get a slightly lower rate (e.g., rate - 2)
+    const finalRate = type === 'SELL' ? (rate - 1) : rate; 
 
-    const trade = await Trade.create({
+    let tradeData = {
       userId: req.userId,
       sendMethod,
       receiveMethod,
-      fiatAmount,
-      cryptoAmount,
-      rate,
-      walletAddress,
-      status: 'PENDING'
-    });
+      rate: finalRate,
+      walletAddress, // If SELL, this is user's UPI/Bank details. If BUY, it's user's Crypto Wallet.
+      status: 'PENDING',
+      type: type || 'BUY' // Add a 'type' field to your Trade Schema if possible
+    };
 
+    if (type === 'SELL') {
+      tradeData.cryptoAmount = Number(cryptoAmount);
+      tradeData.fiatAmount = parseFloat((cryptoAmount * finalRate).toFixed(2));
+    } else {
+      tradeData.fiatAmount = Number(fiatAmount);
+      tradeData.cryptoAmount = parseFloat((fiatAmount / finalRate).toFixed(6));
+    }
+
+    const trade = await Trade.create(tradeData);
     return res.json({ trade });
   } catch (err) {
     console.error(err);
@@ -93,25 +99,26 @@ exports.confirmPayment = async (req, res) => {
 
 
 exports.adminList = async (req, res) => {
-  try {
-    const all = await Trade.find().sort({ createdAt: -1 }).lean();
-    // Populate user details for each trade
-    const tradesWithUsers = await Promise.all(all.map(async (trade) => {
-      if (trade.userId) {
+    try {
+        const trades = await Trade.find()
+            .sort({ createdAt: -1 })
+            .lean();
+
         const User = require('../models/User');
-        const user = await User.findById(trade.userId).select('email username balance referralCode createdAt').lean();
-        return { ...trade, user };
-      }
-      return trade;
-    }));
-    // Put PAID first
-    const paid = tradesWithUsers.filter((t) => t.status === 'PAID');
-    const others = tradesWithUsers.filter((t) => t.status !== 'PAID');
-    return res.json({ trades: [...paid, ...others] });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Server error' });
-  }
+        const tradesWithUsers = await Promise.all(trades.map(async (trade) => {
+            if (trade.userId) {
+                const user = await User.findById(trade.userId).select('email username balance').lean();
+                return { ...trade, user };
+            }
+            return trade;
+        }));
+
+        // Sort: PAID first, then others
+        const sorted = tradesWithUsers.sort((a, b) => (a.status === 'PAID' ? -1 : 1));
+        return res.json({ trades: sorted });
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error' });
+    }
 };
 
 exports.getRate = async (req, res) => {
@@ -274,35 +281,41 @@ exports.getReserves = async (req, res) => {
 };
 
 exports.adminStats = async (req, res) => {
-  try {
-    const now = new Date();
-    const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    try {
+        const now = new Date();
+        const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    const totalTrades = await Trade.countDocuments();
-    const activeRequests = await Trade.countDocuments({ status: { $in: ['PENDING', 'PAID'] } });
-    const paidCount = await Trade.countDocuments({ status: 'PAID' });
-    const completedCount = await Trade.countDocuments({ status: 'COMPLETED' });
+        const activeRequests = await Trade.countDocuments({ status: { $in: ['PENDING', 'PAID'] } });
+        const paidCount = await Trade.countDocuments({ status: 'PAID' });
+        
+        // Detailed Volume Aggregation
+        const dailyStats = await Trade.aggregate([
+            { $match: { createdAt: { $gte: dayAgo }, status: 'COMPLETED' } },
+            { $group: { 
+                _id: "$type", 
+                totalFiat: { $sum: "$fiatAmount" },
+                count: { $sum: 1 } 
+            }}
+        ]);
 
-    const dailyVolumeAgg = await Trade.aggregate([
-      { $match: { createdAt: { $gte: dayAgo } } },
-      { $group: { _id: null, totalFiat: { $sum: '$fiatAmount' }, count: { $sum: 1 } } }
-    ]);
-    const dailyVolume = (dailyVolumeAgg[0] && dailyVolumeAgg[0].totalFiat) || 0;
+        const activeUsersAgg = await Trade.aggregate([
+            { $match: { createdAt: { $gte: dayAgo } } },
+            { $group: { _id: '$userId' } },
+            { $count: 'activeUsers' }
+        ]);
 
-    const activeUsersAgg = await Trade.aggregate([
-      { $match: { createdAt: { $gte: dayAgo } } },
-      { $group: { _id: '$userId' } },
-      { $count: 'activeUsers' }
-    ]);
-    const activeUsers = (activeUsersAgg[0] && activeUsersAgg[0].activeUsers) || 0;
-
-    return res.json({ totalTrades, activeRequests, paidCount, completedCount, dailyVolume, activeUsers });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Server error' });
-  }
+        return res.json({ 
+            activeRequests, 
+            paidCount, 
+            dailyVolume: dailyStats.reduce((acc, curr) => acc + curr.totalFiat, 0),
+            activeUsers: activeUsersAgg[0]?.activeUsers || 0,
+            buyCount: dailyStats.find(s => s._id === 'BUY')?.count || 0,
+            sellCount: dailyStats.find(s => s._id === 'SELL')?.count || 0
+        });
+    } catch (err) {
+        return res.status(500).json({ message: 'Server error' });
+    }
 };
-
 // controllers/tradeController.js
 
 exports.getOperatorStatus = async (req, res) => {

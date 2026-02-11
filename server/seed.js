@@ -29,8 +29,14 @@ async function seed() {
     console.log('Cleared existing data');
 
     // Seed Admin User Only
-    await User.create({ email: 'admin@dubaip2p.com', password: 'admin1234', username: 'admin', isAdmin: true, isEmailVerified: true });
-    console.log('✓ Admin user created');
+await User.create({ 
+  name: 'Admin User', // 🔑 Added this missing field
+  email: 'admin@dubaip2p.com', 
+  password: 'admin1234', 
+  username: 'admin', 
+  isAdmin: true, 
+  isEmailVerified: true 
+});    console.log('✓ Admin user created');
 
     // Seed Payment Details
     await PaymentDetail.insertMany([
@@ -52,7 +58,23 @@ async function seed() {
           bankName: 'HDFC Bank'
         },
         active: true
-      }
+      },
+      {
+    method: 'USDT-TRC20',
+    details: {
+      address: 'TGTmCXghBxNAkUxeL7hnDPjQiQicKG26v2',
+      network: 'TRON (TRC20)'
+    },
+    active: true
+  },
+  {
+    method: 'USDT-BEP20',
+    details: {
+      address: '0xa91D8Ba3029FC14907cb4bEE60763869f0eD88f7',
+      network: 'BSC (BEP20)'
+    },
+    active: true
+  }
     ]);
     console.log('✓ Payment details seeded');
 

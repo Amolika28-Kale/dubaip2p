@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
-import { AlertCircle, ArrowLeft } from 'lucide-react'
+import { AlertCircle, ArrowLeft, User, Mail, Phone, Lock, ShieldCheck, ArrowRight } from 'lucide-react'
 
 export default function Signup() {
   const [email, setEmail] = useState('')
@@ -12,35 +12,23 @@ export default function Signup() {
   const [step, setStep] = useState(1)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { initiateOtpSignup, verifyOtpSignup } = useContext(AuthContext)
+  const { initiateOtpSignup, verifyOtpSignup, resendSignupOtp } = useContext(AuthContext)
   const navigate = useNavigate()
 
   const handleInitiateSignup = async (e) => {
     e.preventDefault()
-    setError('')
-    setLoading(true)
+    setError(''); setLoading(true)
 
     if (!email || !password || !username || !phone) {
-      setError('All fields required')
-      setLoading(false)
-      return
+      setError('All fields required'); setLoading(false); return
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
-      setLoading(false)
-      return
+      setError('Password must be at least 6 characters'); setLoading(false); return
     }
 
-const result = await initiateOtpSignup(
-  username, // backend expects name
-  email,
-  phone,
-  password
-)
+    const result = await initiateOtpSignup(username, email, phone, password)
     if (result.success) {
-      console.log(result)
-
       setStep(2)
     } else {
       setError(result.error || 'Failed to send OTP')
@@ -50,10 +38,8 @@ const result = await initiateOtpSignup(
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault()
-    setError('')
-    setLoading(true)
-
-const result = await verifyOtpSignup(email, otp)
+    setError(''); setLoading(true)
+    const result = await verifyOtpSignup(email, otp)
     if (result.success) {
       navigate('/dashboard')
     } else {
@@ -63,148 +49,162 @@ const result = await verifyOtpSignup(email, otp)
   }
 
   const handleBack = () => {
-    setStep(1)
-    setOtp('')
-    setError('')
+    setStep(1); setOtp(''); setError('')
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-[#0B0E11] flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
+        
+        {/* Branding */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-[#FCD535] mb-2">DubaiP2P</h1>
-         <p className="text-gray-400">
-  {step === 1 ? 'Create your account' : 'Verify your email'}
-</p>
-
+          <h1 className="text-4xl md:text-5xl font-black text-[#FCD535] uppercase italic tracking-tighter mb-2">
+            DubaiP2P
+          </h1>
+          <p className="text-gray-500 text-xs md:text-sm font-bold uppercase tracking-widest">
+            {step === 1 ? 'Create Account' : 'Verify Identity'}
+          </p>
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-8">
+        {/* Signup Card */}
+        <div className="bg-[#161A1E] border border-zinc-800 rounded-[2rem] p-6 md:p-10 shadow-2xl">
+          
           {error && (
-            <div className="mb-4 p-3 bg-red-900/30 border border-red-500 rounded-lg flex gap-2">
-              <AlertCircle size={18} className="text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-300">{error}</p>
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-center gap-3">
+              <AlertCircle size={18} className="text-red-500 shrink-0" />
+              <p className="text-xs font-bold text-red-400 uppercase tracking-tight">{error}</p>
             </div>
           )}
 
           {step === 1 ? (
-            <form onSubmit={handleInitiateSignup} className="space-y-4">
+            <form onSubmit={handleInitiateSignup} className="space-y-5">
+              {/* Username */}
               <div>
-                <label className="block text-sm text-gray-300 mb-2">Username</label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:border-[#FCD535] focus:outline-none"
-                  placeholder="Enter your username"
-                />
+                <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-black ml-1">Username</label>
+                <div className="relative group">
+                  <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#FCD535] transition-colors" />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-sm text-white outline-none focus:border-yellow-500/50 transition-all font-medium"
+                    placeholder="Display name"
+                  />
+                </div>
               </div>
 
+              {/* Email */}
               <div>
-                <label className="block text-sm text-gray-300 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:border-[#FCD535] focus:outline-none"
-                  placeholder="you@example.com"
-                />
+                <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-black ml-1">Email</label>
+                <div className="relative group">
+                  <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#FCD535] transition-colors" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-sm text-white outline-none focus:border-yellow-500/50 transition-all font-medium"
+                    placeholder="you@example.com"
+                  />
+                </div>
               </div>
 
+              {/* Phone */}
               <div>
-                <label className="block text-sm text-gray-300 mb-2">Phone Number</label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:border-[#FCD535] focus:outline-none"
-                  placeholder="+91 9876543210"
-                />
+                <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-black ml-1">Phone Number</label>
+                <div className="relative group">
+                  <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#FCD535] transition-colors" />
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-sm text-white outline-none focus:border-yellow-500/50 transition-all font-medium"
+                    placeholder="+91 98765 43210"
+                  />
+                </div>
               </div>
 
+              {/* Password */}
               <div>
-                <label className="block text-sm text-gray-300 mb-2">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:border-[#FCD535] focus:outline-none"
-                  placeholder="Min 6 characters"
-                />
+                <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-black ml-1">Password</label>
+                <div className="relative group">
+                  <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#FCD535] transition-colors" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-sm text-white outline-none focus:border-yellow-500/50 transition-all font-medium"
+                    placeholder="Min 6 characters"
+                  />
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#FCD535] text-black py-3 rounded-lg font-semibold hover:bg-[#FCD535]/90 disabled:opacity-50 mt-6"
+                className="w-full flex items-center justify-center gap-2 py-4 bg-[#FCD535] text-black rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-yellow-400 active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-yellow-500/10 mt-6"
               >
-                {loading ? 'Sending OTP...' : 'Send OTP'}
+                {loading ? 'Processing...' : 'Send Verification OTP'}
               </button>
             </form>
           ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div className="text-center mb-4">
-               <p className="text-gray-400 text-sm">
-  We've sent a 6-digit code to <span className="text-white">{email}</span>
-</p>
-
-<p className="text-gray-400 text-xs mt-1">
-  (Check your inbox & spam folder)
-</p>
-
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
+              <div className="text-center">
+                <p className="text-gray-400 text-sm">Sent a code to <span className="text-white font-bold">{email}</span></p>
+                <p className="text-gray-600 text-[10px] uppercase font-black tracking-tighter mt-1">(Check Inbox & Spam)</p>
               </div>
 
               <div>
-                <label className="block text-sm text-gray-300 mb-2">Enter OTP</label>
+                <label className="block text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-black text-center">Enter 6-Digit OTP</label>
                 <input
                   type="text"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg focus:border-[#FCD535] focus:outline-none text-center text-2xl tracking-widest"
+                  className="w-full p-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-xl md:text-2xl text-[#FCD535] outline-none focus:border-yellow-500/50 transition-all font-black tracking-[0.5em] text-center"
                   placeholder="000000"
-                  maxLength={6}
                 />
               </div>
-<button
-  type="button"
-  onClick={async () => {
-    const r = await resendSignupOtp(email)
-    if (!r.success) setError(r.error)
-  }}
-  className="text-sm text-[#FCD535] hover:underline mt-2"
->
-  Resend OTP
-</button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const r = await resendSignupOtp(email)
+                    if (!r.success) setError(r.error)
+                  }}
+                  className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-[#FCD535] transition-colors"
+                >
+                  Resend Verification Code
+                </button>
+              </div>
 
               <button
                 type="submit"
                 disabled={loading || otp.length !== 6}
-                className="w-full bg-[#FCD535] text-black py-3 rounded-lg font-semibold hover:bg-[#FCD535]/90 disabled:opacity-50 mt-6"
+                className="w-full flex items-center justify-center gap-2 py-4 bg-green-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-green-500 active:scale-[0.98] transition-all disabled:opacity-50"
               >
-                {loading ? 'Verifying...' : 'Verify & Create Account'}
+                {loading ? 'Verifying...' : 'Complete Registration'}
               </button>
 
-              <button
-                type="button"
-                onClick={handleBack}
-                className="w-full flex items-center justify-center gap-2 text-gray-400 hover:text-white mt-4"
-              >
-                <ArrowLeft size={16} />
-                Back to form
+              <button type="button" onClick={handleBack} className="w-full flex items-center justify-center gap-2 text-zinc-600 hover:text-white text-[10px] font-black uppercase tracking-widest mt-4 transition-colors">
+                <ArrowLeft size={14} /> Back to Details
               </button>
             </form>
           )}
 
-          <p className="text-center text-gray-400 text-sm mt-6">
-            Already have an account?{' '}
-            <Link to="/login" className="text-[#FCD535] hover:underline">
-              Sign in
-            </Link>
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-zinc-800"></div></div>
+            <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
+              <span className="px-4 bg-[#161A1E] text-zinc-600">Secure Node</span>
+            </div>
+          </div>
+
+          <p className="text-center text-zinc-500 text-[10px] font-black uppercase tracking-widest">
+            Already Member? <Link to="/login" className="text-[#FCD535] hover:text-yellow-400 ml-1 underline decoration-yellow-500/30 underline-offset-4">Sign In</Link>
           </p>
         </div>
 
-        <p className="text-center text-gray-500 text-xs mt-4">
-          By signing up, you agree to our Terms of Service
+        <p className="text-center text-[9px] text-zinc-700 mt-8 uppercase font-bold tracking-[0.2em]">
+          By continuing, you agree to our Terms of Service & Privacy Protocol
         </p>
       </div>
     </div>
