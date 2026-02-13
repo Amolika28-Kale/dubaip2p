@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
-import { CheckCircle, Clock, Upload, AlertCircle, Copy, ArrowRightLeft } from 'lucide-react'
+import { CheckCircle, Clock, Upload, AlertCircle, Copy, ArrowRightLeft, Activity, ShieldCheck, ChevronRight } from 'lucide-react'
 import { getTradeById } from '../services/exchangeService'
 import toast from 'react-hot-toast'
 
@@ -63,9 +63,9 @@ export default function TradeStatus() {
       const d = await res.json()
       if (d.trade) {
         setTrade(d.trade)
-        toast.success('Proof uploaded successfully')
+        toast.success('Escrow proof submitted')
       }
-    } catch (e) { toast.error('Upload failed') }
+    } catch (e) { toast.error('Verification upload failed') }
     setLoading(false)
   }
 
@@ -83,8 +83,8 @@ export default function TradeStatus() {
   }
 
   if (!trade) return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FCD535]"></div>
+    <div className="min-h-screen bg-[#0B0E11] flex items-center justify-center">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
     </div>
   )
 
@@ -92,66 +92,71 @@ export default function TradeStatus() {
 
   return (
     <div className="min-h-screen bg-[#0B0E11] text-white p-4 pb-20">
-      <div className="max-w-2xl mx-auto pt-8">
+      <div className="max-w-2xl mx-auto pt-4 md:pt-10">
         
         {/* Header Section */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 px-2">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <ArrowRightLeft className="text-[#FCD535]" /> Order Details
+            <h1 className="text-xl md:text-2xl font-black flex items-center gap-3 italic uppercase tracking-tighter">
+              <Activity className="text-blue-500" /> Order Tracking
             </h1>
-            <p className="text-gray-500 text-sm">ID: {trade._id}</p>
+            <p className="text-[10px] font-mono text-gray-600 mt-1 uppercase font-bold tracking-widest">Index: {trade._id.toUpperCase()}</p>
           </div>
-          <div className={`px-4 py-1 rounded-full text-xs font-bold border ${
-            trade.status === 'COMPLETED' ? 'border-green-500 text-green-500 bg-green-500/10' :
-            trade.status === 'CANCELLED' ? 'border-red-500 text-red-500 bg-red-500/10' :
-            'border-yellow-500 text-yellow-500 bg-yellow-500/10'
+          <div className={`w-fit px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] border shadow-lg ${
+            trade.status === 'COMPLETED' ? 'border-green-500/20 text-green-500 bg-green-500/5' :
+            trade.status === 'CANCELLED' ? 'border-red-500/20 text-red-500 bg-red-500/5' :
+            'border-blue-500/20 text-blue-400 bg-blue-500/5 animate-pulse'
           }`}>
-            {trade.status}
+            ● {trade.status === 'PAID' ? 'Under Review' : trade.status}
           </div>
         </div>
 
         {/* Amount Summary Card */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-gray-500 text-xs uppercase font-bold tracking-wider mb-1">You Send</p>
-              <p className="text-xl font-black">
+        <div className="bg-[#181a20] border border-gray-800 rounded-[2rem] p-6 md:p-8 mb-8 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
+             <ShieldCheck size={120} />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-8 relative z-10">
+            <div className="border-l-2 border-red-500/20 pl-4">
+              <p className="text-gray-500 text-[9px] uppercase font-black tracking-widest mb-1">Asset Sent</p>
+              <p className="text-xl md:text-2xl font-black tracking-tighter">
                 {isSell ? `${trade.cryptoAmount} USDT` : `₹${trade.fiatAmount.toLocaleString()}`}
               </p>
-              <p className="text-xs text-gray-500 mt-1">{trade.sendMethod}</p>
+              <p className="text-[10px] text-zinc-600 font-bold uppercase mt-1 italic">{trade.sendMethod}</p>
             </div>
-            <div className="text-right">
-              <p className="text-gray-500 text-xs uppercase font-bold tracking-wider mb-1">You Receive</p>
-              <p className="text-xl font-black text-[#FCD535]">
+            <div className="border-l-2 border-green-500/20 pl-4">
+              <p className="text-gray-500 text-[9px] uppercase font-black tracking-widest mb-1">Asset Due</p>
+              <p className="text-xl md:text-2xl font-black text-blue-500 tracking-tighter">
                 {isSell ? `₹${trade.fiatAmount.toLocaleString()}` : `${trade.cryptoAmount} USDT`}
               </p>
-              <p className="text-xs text-gray-500 mt-1">{trade.receiveMethod}</p>
+              <p className="text-[10px] text-zinc-600 font-bold uppercase mt-1 italic">{trade.receiveMethod}</p>
             </div>
           </div>
           
-          <div className="mt-6 pt-6 border-t border-zinc-800">
-            <p className="text-xs text-gray-500 mb-2 uppercase font-bold">Payout Details</p>
-            <div className="flex items-center justify-between bg-black/40 p-3 rounded-xl border border-zinc-800">
-              <code className="text-xs text-gray-300 truncate mr-4">{trade.walletAddress}</code>
-              <button onClick={() => copyToClipboard(trade.walletAddress)} className="text-[#FCD535] p-1"><Copy size={16} /></button>
+          <div className="mt-8 pt-6 border-t border-gray-800/50">
+            <p className="text-[9px] text-gray-500 mb-3 uppercase font-black tracking-widest ml-1">Secure Payout Node</p>
+            <div className="flex items-center justify-between bg-[#0b0e11] p-4 rounded-2xl border border-gray-800 group-focus-within:border-blue-500/30 transition-all">
+              <code className="text-xs text-blue-500 font-bold truncate mr-4 font-mono">{trade.walletAddress}</code>
+              <button onClick={() => copyToClipboard(trade.walletAddress)} className="text-zinc-500 hover:text-white transition-colors"><Copy size={18} /></button>
             </div>
           </div>
         </div>
 
         {/* Dynamic Status View */}
         {trade.status === 'PENDING' && (
-          <div className="space-y-6">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <Upload size={20} className="text-yellow-500" /> Upload Payment Proof
-              </h3>
-              <p className="text-sm text-gray-400 mb-6">
-                Please upload the transaction screenshot. {isSell ? 'Transfer USDT to the admin address shown on the previous screen.' : 'Transfer INR to the admin UPI/Bank.'}
+          <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+            <div className="bg-[#181a20] border border-gray-800 rounded-[2rem] p-6 md:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                 <div className="p-2 bg-blue-600/10 rounded-xl text-blue-500 border border-blue-600/20"><Upload size={20} /></div>
+                 <h3 className="text-lg font-black uppercase italic tracking-tighter">Authentication Required</h3>
+              </div>
+              <p className="text-xs text-gray-500 mb-8 leading-relaxed font-medium">
+                Submit your encrypted payment receipt. {isSell ? 'Transfer USDT to the verified platform address provided.' : 'Transfer INR to the merchant endpoint.'}
               </p>
 
-              <label className={`block border-2 border-dashed rounded-2xl p-10 text-center transition-all cursor-pointer ${
-                dragActive ? 'border-[#FCD535] bg-yellow-500/5' : 'border-zinc-800 hover:border-zinc-700'
+              <label className={`block border-2 border-dashed rounded-[1.5rem] p-10 md:p-14 text-center transition-all cursor-pointer ${
+                dragActive ? 'border-blue-500 bg-blue-500/5' : 'border-gray-800 hover:border-blue-500/30 bg-[#0b0e11]'
               }`}
                 onDragOver={(e) => {e.preventDefault(); setDragActive(true)}}
                 onDragLeave={() => setDragActive(false)}
@@ -160,13 +165,13 @@ export default function TradeStatus() {
                 <input type="file" className="hidden" onChange={(e) => setFile(e.target.files[0])} accept="image/*" />
                 {file ? (
                   <div className="flex flex-col items-center">
-                    <CheckCircle className="text-green-500 mb-2" />
-                    <span className="text-sm font-bold">{file.name}</span>
+                    <ShieldCheck className="text-green-500 mb-3" size={32} />
+                    <span className="text-sm font-black text-white truncate max-w-xs">{file.name}</span>
                   </div>
                 ) : (
                   <>
-                    <Upload className="mx-auto text-gray-600 mb-2" />
-                    <span className="text-sm text-gray-500">Click to browse or drag & drop</span>
+                    <Upload className="mx-auto text-gray-700 mb-3" size={32} />
+                    <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Select Decrypted Image</span>
                   </>
                 )}
               </label>
@@ -175,9 +180,9 @@ export default function TradeStatus() {
                 <button 
                   onClick={upload} 
                   disabled={loading}
-                  className="w-full mt-4 bg-[#FCD535] text-black font-black py-4 rounded-xl hover:bg-yellow-400 transition-all disabled:opacity-50"
+                  className="w-full mt-6 bg-blue-600 text-white font-black py-4 rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-600/20 active:scale-[0.98] transition-all disabled:opacity-50 uppercase tracking-[0.2em] text-xs"
                 >
-                  {loading ? 'Processing...' : 'Submit Proof'}
+                  {loading ? 'Initializing...' : 'Confirm Submission'}
                 </button>
               )}
             </div>
@@ -185,74 +190,82 @@ export default function TradeStatus() {
         )}
 
         {trade.status === 'PAID' && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center">
-            <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Clock className="text-green-500" size={32} />
+          <div className="bg-[#181a20] border border-gray-800 rounded-[2.5rem] p-8 md:p-12 text-center shadow-2xl relative overflow-hidden">
+            <div className="w-20 h-20 bg-blue-500/10 border border-blue-500/20 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-pulse">
+              <Clock className="text-blue-500" size={40} />
             </div>
-            <h3 className="text-xl font-bold mb-2">Verifying Payment</h3>
-            <p className="text-gray-500 text-sm mb-8">
-              Admin is checking your {isSell ? 'USDT transfer' : 'INR payment'}. 
-              {isSell ? ' INR will be credited to your account shortly.' : ' USDT will be released to your wallet shortly.'}
+            <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-3">Validation in Progress</h3>
+            <p className="text-gray-500 text-sm mb-10 leading-relaxed font-medium max-w-sm mx-auto">
+              Our nodes are verifying your {isSell ? 'USDT deposit' : 'INR transfer'}. 
+              Assets are locked in escrow and will be released following manual authorization.
             </p>
 
-            <div className="text-4xl font-black text-[#FCD535] mb-2 tracking-tighter">
-              {formatTime(timeLeft)}
+            <div className="bg-[#0b0e11] border border-gray-800 rounded-3xl p-8 mb-8">
+                <div className="text-5xl font-black text-blue-500 mb-2 tracking-tighter">
+                {formatTime(timeLeft)}
+                </div>
+                <p className="text-[10px] text-gray-600 uppercase font-black tracking-[0.2em]">Queue TTL Remaining</p>
             </div>
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-6">Estimated Wait Time</p>
 
-            <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-[#0b0e11] h-2 rounded-full overflow-hidden border border-gray-800">
               <div 
-                className={`h-full transition-all duration-1000 ${phase === '30min' ? 'bg-blue-500' : 'bg-red-500'}`}
+                className={`h-full transition-all duration-1000 ${phase === '30min' ? 'bg-blue-600' : 'bg-red-600 shadow-[0_0_10px_rgba(239,68,68,0.5)]'}`}
                 style={{ width: phase === '30min' ? `${Math.min(100, ((1800000 - timeLeft) / 1800000) * 100)}%` : '100%' }}
               />
             </div>
             
-            <button onClick={fetchTrade} className="mt-8 text-xs text-[#FCD535] font-bold hover:underline">
-              Refresh Status
+            <button onClick={fetchTrade} className="mt-10 flex items-center gap-2 mx-auto text-[10px] text-blue-500 font-black uppercase tracking-widest hover:text-white transition-colors group">
+              <RefreshCw className="group-active:rotate-180 transition-transform" size={14} /> Ping Status
             </button>
           </div>
         )}
 
         {trade.status === 'COMPLETED' && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center">
-            <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="text-green-500" size={32} />
+          <div className="bg-[#181a20] border border-gray-800 rounded-[2.5rem] p-8 md:p-12 text-center animate-in zoom-in-95 duration-500 shadow-2xl">
+            <div className="w-20 h-20 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center mx-auto mb-8">
+              <CheckCircle className="text-green-500" size={40} />
             </div>
-            <h3 className="text-xl font-bold mb-2">Exchange Successful</h3>
-            <p className="text-gray-500 text-sm mb-6">
-              The {isSell ? 'INR payout' : 'USDT release'} has been processed.
+            <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-3">Settlement Success</h3>
+            <p className="text-gray-500 text-sm mb-10 leading-relaxed font-medium">
+              The {isSell ? 'INR payout' : 'USDT release'} has been successfully cleared to your destination endpoint.
             </p>
             
             {trade.txid && (
-              <div className="bg-black/40 p-4 rounded-xl border border-zinc-800 mb-6 text-left">
-                <p className="text-[10px] text-gray-500 uppercase font-bold mb-2">Transaction ID / Hash</p>
-                <code className="text-[10px] text-green-400 break-all">{trade.txid}</code>
+              <div className="bg-[#0b0e11] p-5 rounded-2xl border border-gray-800 mb-8 text-left">
+                <p className="text-[9px] text-gray-600 uppercase font-black mb-3 tracking-widest">Transaction Integrity Hash</p>
+                <code className="text-xs text-green-500 font-mono break-all font-bold tracking-tight">{trade.txid}</code>
               </div>
             )}
 
-            <button onClick={() => navigate('/exchange')} className="w-full bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold transition">
-              New Exchange
+            <button onClick={() => navigate('/exchange')} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+              New Exchange <ChevronRight size={16} />
             </button>
           </div>
         )}
 
         {trade.status === 'CANCELLED' && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center">
-            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="text-red-500" size={32} />
+          <div className="bg-[#181a20] border border-gray-800 rounded-[2.5rem] p-8 md:p-12 text-center animate-in fade-in duration-500">
+            <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto mb-8">
+              <AlertCircle className="text-red-500" size={40} />
             </div>
-            <h3 className="text-xl font-bold mb-2">Exchange Cancelled</h3>
-            <p className="text-gray-500 text-sm mb-4">This trade was not successful.</p>
+            <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-3 text-red-500">Node Refusal</h3>
+            <p className="text-gray-500 text-sm mb-6">This transaction has been terminated by the protocol.</p>
             {trade.rejectionReason && (
-              <p className="text-red-400 text-sm font-medium italic mb-6">"{trade.rejectionReason}"</p>
+              <div className="bg-red-500/5 p-4 rounded-2xl border border-red-500/10 mb-10">
+                 <p className="text-red-400 text-xs font-black uppercase tracking-widest mb-1">Termination Logic:</p>
+                 <p className="text-sm text-gray-400 italic font-medium">"{trade.rejectionReason}"</p>
+              </div>
             )}
-            <button onClick={() => navigate('/exchange')} className="w-full bg-zinc-800 hover:bg-zinc-700 py-4 rounded-xl font-bold transition">
-              Try Again
+            <button onClick={() => navigate('/exchange')} className="w-full bg-[#0b0e11] border border-gray-800 text-gray-300 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-gray-800 transition-all">
+              Restart Exchange
             </button>
           </div>
         )}
       </div>
-      
     </div>
   )
+}
+
+function RefreshCw({ className, size }) {
+    return <Activity className={className} size={size} />
 }

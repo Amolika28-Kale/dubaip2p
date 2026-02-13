@@ -2,7 +2,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowRight, Shield, Zap, Globe, TrendingUp, Users, Star,
-  CheckCircle, Clock, Wallet, ChevronLeft, ChevronRight
+  CheckCircle, Clock, Wallet, ChevronLeft, ChevronRight, Lock, 
+  BarChart3, Download, ChevronDown, Menu, X
 } from 'lucide-react'
 import { AuthContext } from '../context/AuthContext'
 import { getExchangeRate } from '../services/exchangeService'
@@ -13,316 +14,447 @@ export default function Landing() {
   const navigate = useNavigate()
   const { isAuthenticated } = useContext(AuthContext)
 
-  const [rate, setRate] = useState(82.5)
-  const [fiatAmount, setFiatAmount] = useState(1000)
+  const [rate, setRate] = useState(89.42)
+  const [fiatAmount, setFiatAmount] = useState(100)
   const [reviews, setReviews] = useState([])
-  
-  // Carousel State
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const [tradeType, setTradeType] = useState('buy') // 'buy' or 'sell'
+
 
   useEffect(() => {
-    const fetchRate = async () => {
+    const fetchData = async () => {
       try {
-        const d = await getExchangeRate()
-        setRate(d.rate || 82.5)
+        const [rateData, reviewData] = await Promise.all([
+          getExchangeRate(),
+          getReviews()
+        ])
+        setRate(rateData.rate || 89.42)
+        setReviews(reviewData.reviews || [])
       } catch (e) { console.error(e) }
     }
-
-    const fetchReviews = async () => {
-      try {
-        const d = await getReviews()
-        setReviews(d.reviews || [])
-      } catch (e) { console.error(e) }
-    }
-
-    fetchRate()
-    fetchReviews()
+    fetchData()
   }, [])
-
-  // Auto-play Carousel Logic
-  useEffect(() => {
-    if (reviews.length > 0) {
-      const timer = setInterval(() => {
-        nextSlide()
-      }, 5000)
-      return () => clearInterval(timer)
-    }
-  }, [currentIndex, reviews])
-
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % Math.ceil(reviews.length / (window.innerWidth < 768 ? 1 : 3)))
-  }
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? Math.ceil(reviews.length / (window.innerWidth < 768 ? 1 : 3)) - 1 : prev - 1))
-  }
 
   const cryptoAmount = (fiatAmount / rate).toFixed(4)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-zinc-900 to-black text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#0b0e11] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden">
+      
+      {/* ================= HEADER / NAVBAR ================= */}
+      <nav className="border-b border-gray-800 px-4 md:px-8 py-3 flex justify-between items-center bg-[#0b0e11] sticky top-0 z-50">
+        <div className="flex items-center gap-6">
+          {/* LOGO */}
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black text-white italic shadow-lg shadow-blue-600/20">D</div>
+            <h2 className="text-xl font-bold text-white tracking-tighter">DubaiP2P</h2>
+          </div>
 
-      {/* ================= HERO ================= */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(252,213,53,0.15),_transparent_60%)]" />
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 relative z-10">
+      
+        </div>
 
-          {/* LEFT */}
-          <div className="text-center md:text-left order-2 md:order-1">
-            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tighter">
-              <span className="text-[#FCD535]">DubaiP2P</span>
-              <br />
-              Secure INR → USDT Exchange
-            </h1>
+        {/* RIGHT SIDE TOOLS */}
+        <div className="flex items-center gap-4">
+        
+          
+          <div className="flex gap-2">
+            <button onClick={() => navigate('/login')} className="text-[13px] font-bold px-3 py-1.5 text-gray-300 hover:text-blue-500 transition-colors">Log In</button>
+            <button onClick={() => navigate('/signup')} className="bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded-md text-[13px] font-bold text-white transition-all shadow-md">Sign Up</button>
+          </div>
+        </div>
+      </nav>
+      {/* ================= HERO SECTION ================= */}
+      <section className="max-w-7xl mx-auto px-6 py-12 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full text-blue-500 text-xs font-bold mb-6">
+            <Zap size={14} fill="currentColor" /> #1 Trusted P2P Platform in UAE & India
+          </div>
+          <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] mb-6 tracking-tight">
+            Seamlessly Exchange <br />
+            <span className="text-blue-500 italic">INR to USDT</span>
+          </h1>
+          <p className="text-gray-400 text-lg mb-8 max-w-lg leading-relaxed">
+            Experience institutional-grade security with 0% fees. Join thousands of users trading on the most reliable escrow-protected network.
+          </p>
+          
+          <div className="flex items-center gap-8 mb-10">
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold">₹0</span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Hidden Fees</span>
+            </div>
+            
+            <div className="h-8 w-[1px] bg-gray-800"></div>
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold">24/7</span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Expert Support</span>
+            </div>
+          </div>
+        </div>
 
-            <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-xl mx-auto md:mx-0">
-              Trusted peer-to-peer crypto exchange with instant settlement,
-              escrow protection and real-time rates.
-            </p>
+       {/* EXCHANGE WIDGET (BUY/SELL TOGGLE WORKING) */}
+        <div className="bg-[#181a20] rounded-3xl p-6 md:p-8 border border-gray-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative">
+          <div className="flex gap-4 p-1 bg-[#0b0e11] rounded-2xl mb-8">
+            <button 
+              onClick={() => setTradeType('buy')}
+              className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${tradeType === 'buy' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+            >
+              Buy
+            </button>
+            <button 
+              onClick={() => setTradeType('sell')}
+              className={`flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${tradeType === 'sell' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+            >
+              Sell
+            </button>
+          </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mb-10">
-              <button
-                onClick={() => navigate(isAuthenticated ? '/exchange' : '/signup')}
-                className="px-8 py-4 bg-[#FCD535] text-black font-bold rounded-xl hover:bg-yellow-400 transition flex items-center justify-center gap-2 w-full sm:w-auto"
-              >
-                Start Trading <ArrowRight size={20} />
-              </button>
-              <button
-                onClick={() => navigate('/login')}
-                className="px-8 py-4 border border-[#FCD535] text-[#FCD535] font-bold rounded-xl hover:bg-[#FCD535] hover:text-black transition w-full sm:w-auto"
-              >
-                Sign In
-              </button>
+          <div className="space-y-4">
+            <div className="bg-[#2b3139] p-5 rounded-2xl border border-transparent focus-within:border-blue-500/50 transition-all">
+              <div className="flex justify-between mb-2">
+                <label className="text-[10px] text-gray-400 font-black uppercase tracking-widest">
+                  {tradeType === 'buy' ? 'You Spend' : 'You Sell'}
+                </label>
+              </div>
+              <div className="flex justify-between items-center">
+                <input 
+                  type="number" 
+                  value={fiatAmount}
+                  onChange={(e) => setFiatAmount(+e.target.value)}
+                  className="bg-transparent text-3xl font-black outline-none w-full tracking-tighter"
+                />
+                <div className="flex items-center gap-2 bg-zinc-800/80 px-3 py-1.5 rounded-xl border border-gray-700">
+                  <div className={`w-5 h-5 ${tradeType === 'buy' ? 'bg-orange-500' : 'bg-green-500'} rounded-full flex items-center justify-center text-[10px] font-black`}>
+                    {tradeType === 'buy' ? '₹' : 'T'}
+                  </div>
+                  <span className="font-bold text-sm tracking-tight">{tradeType === 'buy' ? 'INR' : 'USDT'}</span>
+                </div>
+              </div>
             </div>
 
-            {/* TRUST STRIP */}
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-6 text-xs md:text-sm text-gray-400">
-              <div className="flex items-center gap-2">
-                <Shield className="text-green-400" size={16} /> Escrow Protected
+            <div className="bg-[#2b3139] p-5 rounded-2xl border border-transparent">
+              <label className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-2">
+                Approx. Receive
+              </label>
+              <div className="flex justify-between items-center">
+                <input 
+                  readOnly 
+                  value={cryptoAmount}
+                  className={`bg-transparent text-3xl font-black outline-none w-full tracking-tighter ${tradeType === 'buy' ? 'text-green-500' : 'text-blue-500'}`}
+                />
+                <div className="flex items-center gap-2 bg-zinc-800/80 px-3 py-1.5 rounded-xl border border-gray-700">
+                  <div className={`w-5 h-5 ${tradeType === 'buy' ? 'bg-green-500' : 'bg-orange-500'} rounded-full flex items-center justify-center text-[10px] font-black text-white`}>
+                    {tradeType === 'buy' ? 'T' : '₹'}
+                  </div>
+                  <span className="font-bold text-sm tracking-tight">{tradeType === 'buy' ? 'USDT' : 'INR'}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Zap className="text-yellow-400" size={16} /> Avg 3 min settlement
+            </div>
+
+            <div className="flex justify-between text-[11px] px-2 text-gray-500 font-bold uppercase tracking-wider">
+              <span>Reference Rate</span>
+              <span className="text-gray-200">1 USDT ≈ ₹{tradeType === 'buy' ? rate.toFixed(2) : (rate - 0.5).toFixed(2)}</span>
+            </div>
+
+            <button 
+              onClick={() => navigate(isAuthenticated ? '/exchange' : '/signup')}
+              className={`w-full py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all shadow-xl active:scale-[0.98] ${tradeType === 'buy' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20' : 'bg-red-600 hover:bg-red-700 shadow-red-600/20'}`}
+            >
+              {tradeType === 'buy' ? 'Buy USDT' : 'Sell USDT'}
+            </button>
+          </div>
+        </div>
+      </section>
+{/* ================= TRADE EDUCATION ================= */}
+<section className="max-w-7xl mx-auto px-6 py-24 border-t border-gray-900">
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+    {/* Buy Side */}
+    <div className="bg-gradient-to-br from-blue-600/10 to-transparent p-8 rounded-[2.5rem] border border-blue-500/20">
+      <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-600/20">
+        <TrendingUp className="text-white" size={24} />
+      </div>
+      <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">Buying USDT</h3>
+      <p className="text-gray-400 mb-8 leading-relaxed">Perfect for investors looking to enter the crypto market. Convert your local INR into digital dollars (USDT) instantly via UPI or Bank Transfer.</p>
+      
+      <div className="space-y-4">
+        {[
+          { step: "01", text: "Enter INR amount and choose payment method." },
+          { step: "02", text: "Pay the Merchant using the secure details provided." },
+          { step: "03", text: "Upload your receipt and receive USDT in your wallet." }
+        ].map((item, i) => (
+          <div key={i} className="flex gap-4 items-center bg-[#0b0e11] p-4 rounded-2xl border border-gray-800">
+            <span className="text-blue-500 font-black text-xl italic">{item.step}</span>
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-300">{item.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Sell Side */}
+    <div className="bg-gradient-to-br from-red-600/10 to-transparent p-8 rounded-[2.5rem] border border-red-500/20">
+      <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-red-600/20">
+        <Download className="text-white" size={24} />
+      </div>
+      <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">Selling USDT</h3>
+      <p className="text-gray-400 mb-8 leading-relaxed">Need instant liquidity? Liquidate your USDT holdings and get INR directly into your Bank Account or UPI ID within minutes.</p>
+      
+      <div className="space-y-4">
+        {[
+          { step: "01", text: "Deposit USDT into our secure Virtual Escrow." },
+          { step: "02", text: "System verifies the blockchain transaction." },
+          { step: "03", text: "INR is released to your bank account immediately." }
+        ].map((item, i) => (
+          <div key={i} className="flex gap-4 items-center bg-[#0b0e11] p-4 rounded-2xl border border-gray-800">
+            <span className="text-red-500 font-black text-xl italic">{item.step}</span>
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-300">{item.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+      {/* ================= TICKER SECTION ================= */}
+      <div className="bg-[#181a20] py-4 border-y border-gray-800">
+        <LatestExchangesTicker />
+      </div>
+{/* ================= COMPATIBILITY STRIP ================= */}
+<section className="max-w-7xl mx-auto px-6 py-12 border-b border-gray-900">
+  <div className="flex flex-col md:flex-row justify-between items-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+    <div className="flex flex-col items-center md:items-start">
+      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-4">Supported Networks</span>
+      <div className="flex gap-6 items-center">
+        <span className="font-black text-xl tracking-tighter">TRC-20</span>
+        <span className="font-black text-xl tracking-tighter">BEP-20</span>
+      </div>
+    </div>
+    <div className="h-12 w-[1px] bg-gray-800 hidden md:block"></div>
+    <div className="flex flex-col items-center md:items-start">
+      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-4">Instant Payouts To</span>
+      <div className="flex gap-6 items-center flex-wrap justify-center">
+        <span className="font-bold text-sm">UPI (PhonePe/GPay)</span>
+        <span className="font-bold text-sm">HDFC Bank</span>
+        <span className="font-bold text-sm">ICICI Bank</span>
+        <span className="font-bold text-sm">SBI</span>
+      </div>
+    </div>
+  </div>
+</section>
+      {/* ================= SECURITY & FEATURES ================= */}
+      <section className="max-w-7xl mx-auto px-6 py-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-black mb-6 leading-tight uppercase italic tracking-tighter">
+              World-Class Security <br /> For Every Transaction
+            </h2>
+            <div className="space-y-6">
+              <div className="flex gap-4">
+                <div className="mt-1 bg-blue-500/20 p-2 rounded-lg text-blue-500 h-fit">
+                   <Shield size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg">Bank-Grade Escrow</h4>
+                  <p className="text-sm text-gray-500 leading-relaxed">Your digital assets are safely held in our cold-storage escrow during the transaction, released only when both parties are satisfied.</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Globe className="text-blue-400" size={16} /> TRC20 • BEP20
+              <div className="flex gap-4">
+                <div className="mt-1 bg-blue-500/20 p-2 rounded-lg text-blue-500 h-fit">
+                   <Lock size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg">Identity Verification</h4>
+                  <p className="text-sm text-gray-500 leading-relaxed">Our advanced KYC/AML protocols ensure that you trade with verified individuals, drastically reducing risk.</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="mt-1 bg-blue-500/20 p-2 rounded-lg text-blue-500 h-fit">
+                   <CheckCircle size={24} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg">100% Reserve Proof</h4>
+                  <p className="text-sm text-gray-500 leading-relaxed">We maintain a 1:1 reserve for all user assets, audited regularly for maximum transparency and trust.</p>
+                </div>
               </div>
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+             <div className="bg-[#181a20] p-6 rounded-2xl border border-gray-800 flex flex-col items-center text-center">
+                <Users className="text-blue-500 mb-3" size={30} />
+                <span className="text-2xl font-bold">12k+</span>
+                <span className="text-[10px] text-gray-500 uppercase font-bold mt-1">Active Users</span>
+             </div>
+             <div className="bg-[#181a20] p-6 rounded-2xl border border-gray-800 flex flex-col items-center text-center translate-y-8">
+                <BarChart3 className="text-blue-500 mb-3" size={30} />
+                <span className="text-2xl font-bold">₹42Cr</span>
+                <span className="text-[10px] text-gray-500 uppercase font-bold mt-1">24h Volume</span>
+             </div>
+             <div className="bg-[#181a20] p-6 rounded-2xl border border-gray-800 flex flex-col items-center text-center">
+                <Clock className="text-blue-500 mb-3" size={30} />
+                <span className="text-2xl font-bold">~2.8m</span>
+                <span className="text-[10px] text-gray-500 uppercase font-bold mt-1">Avg. Release</span>
+             </div>
+             <div className="bg-[#181a20] p-6 rounded-2xl border border-gray-800 flex flex-col items-center text-center translate-y-8">
+                <Star className="text-blue-500 mb-3" size={30} fill="currentColor" />
+                <span className="text-2xl font-bold">4.9/5</span>
+                <span className="text-[10px] text-gray-500 uppercase font-bold mt-1">User Rating</span>
+             </div>
+          </div>
+        </div>
+      </section>
+{/* ================= FAQ SECTION ================= */}
+<section className="max-w-4xl mx-auto px-6 py-24">
+  <div className="text-center mb-16">
+    <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-4">Common Questions</h2>
+    <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Everything you need to know about DubaiP2P</p>
+  </div>
 
-          {/* RIGHT – LIVE CALCULATOR */}
-          <div className="bg-zinc-900/80 border border-[#FCD535]/30 rounded-3xl p-6 md:p-8 backdrop-blur order-1 md:order-2">
-            <h3 className="text-xl md:text-2xl font-bold mb-6 text-center md:text-left">Live Exchange Calculator</h3>
-
-            <div className="text-center bg-black/50 p-4 md:p-6 rounded-xl mb-6 border border-zinc-800">
-              <p className="text-xs md:text-sm text-gray-400 mb-2 font-bold uppercase tracking-widest">Current Rate</p>
-              <p className="text-3xl md:text-4xl font-black text-[#FCD535]">
-                ₹{rate.toFixed(2)}
-              </p>
-              <p className="text-[10px] text-gray-500 mt-1 uppercase font-bold">Per 1 USDT</p>
+  <div className="space-y-4">
+    {[
+      {
+        q: "How long does a typical trade take?",
+        a: "Buying USDT usually takes 3-5 minutes after you upload your receipt. Selling USDT is even faster; once the blockchain confirms your deposit (usually 2 minutes), INR is released to your UPI/Bank account instantly."
+      },
+      {
+        q: "Is there a limit on how much I can trade?",
+        a: "For new users, the daily limit is ₹50,000. Verified merchants and high-volume traders can request limits up to ₹50 Lakhs per day through the 'Master Settings' in their profile."
+      },
+      {
+        q: "What happens if a merchant doesn't release my assets?",
+        a: "Our Bank-Grade Escrow system holds the assets. If a dispute arises, our 24/7 support team reviews the uploaded payment proof. If the proof is valid, the assets are released to you manually by an administrator."
+      },
+      {
+        q: "Which networks are supported for USDT?",
+        a: "We primarily support TRC-20 (Tron) and BEP-20 (Binance Smart Chain) due to their low gas fees. Please ensure you select the correct network in your wallet before sending."
+      },
+      {
+        q: "Are there any hidden fees?",
+        a: "None. The rate you see in the 'Live Calculator' is the rate you get. We earn through the small spread between buy and sell orders, ensuring 0% direct transaction fees for our users."
+      }
+    ].map((faq, i) => (
+      <FaqItem key={i} question={faq.q} answer={faq.a} />
+    ))}
+  </div>
+</section>
+      {/* ================= REVIEWS SECTION ================= */}
+      <section className="bg-[#0b0e11] py-24 px-6 border-t border-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="text-3xl font-black italic tracking-tighter uppercase">Merchant Feedback</h2>
+              <p className="text-gray-500 text-xs font-bold uppercase mt-2 tracking-widest">Real voices from our trading community</p>
             </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs md:text-sm text-gray-400 font-bold uppercase ml-1">You Send (INR)</label>
-                <input
-                  type="number"
-                  value={fiatAmount}
-                  onChange={e => setFiatAmount(+e.target.value || 0)}
-                  className="w-full mt-1 p-4 bg-zinc-800 border border-zinc-700 rounded-xl focus:border-[#FCD535] outline-none transition-colors font-bold text-lg"
-                />
-              </div>
-              <div>
-                <label className="text-xs md:text-sm text-gray-400 font-bold uppercase ml-1">You Receive (USDT)</label>
-                <input
-                  value={cryptoAmount}
-                  readOnly
-                  className="w-full mt-1 p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl opacity-70 font-bold text-lg text-yellow-500"
-                />
-              </div>
+            <div className="flex gap-2">
+              <button className="p-2 border border-gray-800 rounded-lg hover:border-blue-500 transition-all"><ChevronLeft size={20}/></button>
+              <button className="p-2 border border-gray-800 rounded-lg hover:border-blue-500 transition-all"><ChevronRight size={20}/></button>
             </div>
-
-            <button
-              onClick={() => navigate(isAuthenticated ? '/exchange' : '/login')}
-              className="w-full mt-6 py-4 bg-[#FCD535] text-black font-black rounded-xl hover:bg-yellow-400 active:scale-95 transition-all shadow-lg shadow-yellow-500/10 uppercase tracking-widest text-xs"
-            >
-              {isAuthenticated ? 'Proceed to Exchange' : 'Login to Trade'}
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {reviews.slice(0, 3).map((rev, i) => (
+              <div key={i} className="bg-[#181a20] p-6 rounded-2xl border border-gray-800 hover:border-blue-500/30 transition-all">
+                <div className="flex gap-1 mb-4 text-blue-500">
+                  {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
+                </div>
+                <p className="text-sm text-gray-300 italic mb-6">"{rev.text || "Extremely fast release and very professional service. Best rates for INR to USDT exchange."}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xs uppercase">{rev.username?.[0] || 'U'}</div>
+                  <div>
+                    <p className="text-xs font-bold uppercase">{rev.username || 'Verified User'}</p>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase">Trusted Merchant</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+{/* ================= TRADING SAFETY TIPS ================= */}
+<section className="max-w-7xl mx-auto px-6 py-24">
+  <div className="bg-zinc-900/40 border border-gray-800 rounded-[3rem] p-8 md:p-16">
+    <div className="flex flex-col lg:flex-row gap-12 items-center">
+      <div className="lg:w-1/3">
+        <h2 className="text-4xl font-black uppercase italic tracking-tighter leading-none mb-4">Trade Like <br /> A Pro.</h2>
+        <p className="text-gray-500 text-sm font-bold uppercase tracking-widest">Follow these rules for 100% security.</p>
+      </div>
+      <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-8">
+        {[
+          { title: "Off-Platform Policy", text: "Never agree to trade outside the DubaiP2P platform. Our escrow only protects you on-site." },
+          { title: "Verification Check", text: "Always verify the payment has cleared in your bank app before releasing assets." },
+          { title: "Network Match", text: "Ensure your USDT network (TRC20/BEP20) matches the wallet address to avoid loss of funds." },
+          { title: "Receipt Integrity", text: "Upload original payment screenshots. Cropped or edited images will delay your trade." }
+        ].map((tip, i) => (
+          <div key={i} className="flex gap-4">
+            <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0 font-black text-xs">{i+1}</div>
+            <div>
+              <h4 className="font-bold text-white mb-1">{tip.title}</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">{tip.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+      {/* ================= FINAL CTA ================= */}
+      <section className="py-24 px-6 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-blue-600/5 blur-[120px] rounded-full"></div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl font-black mb-6 uppercase italic tracking-tight leading-tight">
+            The Future of P2P <br /> Is Just One Click Away
+          </h2>
+          <p className="text-gray-400 mb-10 text-lg font-medium">No registrations fees, no hidden spreads. Just clean and fast trading.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button onClick={() => navigate('/signup')} className="bg-blue-600 hover:bg-blue-700 px-10 py-4 rounded-xl font-black text-lg transition-all shadow-2xl shadow-blue-600/20">
+              OPEN FREE ACCOUNT
+            </button>
+            <button className="bg-gray-800 hover:bg-gray-700 px-10 py-4 rounded-xl font-black text-lg transition-all">
+              VIEW MARKETS
             </button>
           </div>
         </div>
       </section>
 
-      {/* ================= STATS ================= */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        {[
-          ['2,800+', 'Active Users'],
-          ['12,500+', 'Trades Completed'],
-          ['₹4.2 Cr', '24h Volume'],
-          ['99.3%', 'Success Rate']
-        ].map(([value, label]) => (
-          <div key={label} className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-4 md:p-6 text-center hover:border-zinc-700 transition-colors">
-            <p className="text-xl md:text-3xl font-black text-[#FCD535] tracking-tighter">{value}</p>
-            <p className="text-[10px] md:text-xs text-gray-500 mt-1 font-bold uppercase tracking-widest">{label}</p>
+      {/* ================= FOOTER ================= */}
+      <footer className="border-t border-gray-900 pt-20 pb-10 px-6 bg-[#080a0c]">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-5 gap-12 mb-20">
+          <div className="col-span-2 lg:col-span-1">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center font-black text-white text-[10px]">D</div>
+              <h2 className="text-lg font-bold text-white tracking-tighter uppercase italic">DubaiP2P</h2>
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed font-medium">World's most secure peer-to-peer digital asset exchange platform with instant INR settlement.</p>
+            <p className="text-[10px] text-gray-700 font-black uppercase tracking-[0.2em]">© 2026 DubaiP2P Exchange Ltd. | Secure Peer-to-Peer Trading</p>
+          <div className="flex items-center gap-2 text-[10px] text-gray-600 font-bold uppercase tracking-widest">
+            <Shield size={12} className="text-green-600" /> SYSTEM STATUS: <span className="text-green-600">OPERATIONAL</span>
           </div>
-        ))}
-      </section>
-
-      {/* ================= WHY TRUST ================= */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20">
-        <h2 className="text-3xl md:text-4xl font-black text-center mb-10 md:text-left md:mb-16 uppercase italic tracking-tighter">
-          Why Traders Trust DubaiP2P
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {[
-            {
-              icon: Shield,
-              title: 'Escrow Security',
-              desc: 'Funds locked until payment verification'
-            },
-            {
-              icon: Clock,
-              title: 'Fast Settlement',
-              desc: 'Most trades complete within minutes'
-            },
-            {
-              icon: Wallet,
-              title: 'Manual Fraud Checks',
-              desc: 'Human-verified transactions'
-            }
-          ].map((f, i) => (
-            <div key={i} className="bg-zinc-900/50 border border-zinc-800 p-6 md:p-8 rounded-[2rem] hover:border-[#FCD535]/50 transition-all group">
-              <div className="p-3 bg-yellow-500/5 w-fit rounded-2xl mb-4 group-hover:bg-yellow-500/10 transition-colors">
-                <f.icon className="text-[#FCD535]" size={32} />
-              </div>
-              <h3 className="text-xl font-black mb-2 uppercase tracking-tight">{f.title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ================= LIVE WIDGETS ================= */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-20">
-        <LatestExchangesTicker />
-      </section>
-
-{/* ================= REVIEWS CAROUSEL ================= */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-20 relative">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12">
-            <div className="text-center md:text-left">
-                <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter italic">Trusted by Real Traders</h2>
-                <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-2">Verified Feedback from our community</p>
-            </div>
-            
-            {/* Carousel Controls */}
-            <div className="flex gap-2 mt-6 md:mt-0">
-                <button onClick={prevSlide} className="p-3 rounded-full bg-zinc-900 border border-zinc-800 hover:border-yellow-500 text-white transition-all active:scale-90">
-                    <ChevronLeft size={20} />
-                </button>
-                <button onClick={nextSlide} className="p-3 rounded-full bg-zinc-900 border border-zinc-800 hover:border-yellow-500 text-white transition-all active:scale-90">
-                    <ChevronRight size={20} />
-                </button>
-            </div>
-        </div>
-
-        {reviews.length === 0 ? (
-          <div className="flex flex-col items-center py-10 opacity-30">
-             <Star size={40} />
-             <p className="mt-2 font-bold uppercase text-xs">No reviews to display</p>
-          </div>
-        ) : (
-          <div className="relative overflow-hidden">
-            <div 
-              className="flex transition-transform duration-700 ease-in-out gap-6"
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-            >
-              {reviews.map((r) => (
-                <div
-                  key={r._id}
-                  className="min-w-full md:min-w-[calc(33.333%-16px)] bg-[#161A1E] border border-zinc-800 p-6 md:p-8 rounded-[2rem] flex flex-col justify-between transition-all hover:border-yellow-500/30"
-                >
-                  <div>
-                    <div className="flex mb-4 gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={14} className={i < (r.rating || 5) ? "fill-[#FCD535] text-[#FCD535]" : "text-zinc-700"} />
-                      ))}
-                    </div>
-                    <p className="text-gray-300 mb-8 text-sm italic font-medium leading-relaxed">"{r.text}"</p>
-                  </div>
-
-                  <div className="flex items-center gap-3 pt-6 border-t border-zinc-800/50">
-                    <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center text-xs font-black text-yellow-500 uppercase border border-yellow-500/20">
-                      {r.username?.[0] || 'U'}
-                    </div>
-                    <div>
-                      <p className="text-sm font-black text-white uppercase tracking-tighter">{r.username}</p>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{new Date(r.createdAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
-      {/* ================= FINAL CTA ================= */}
-      <section className="text-center py-20 md:py-28 bg-gradient-to-r from-[#FCD535]/5 to-transparent px-4">
-        <h2 className="text-3xl md:text-5xl font-black mb-6 uppercase tracking-tighter italic">
-          Start Your First Trade in 2 Minutes
-        </h2>
-        <p className="text-lg md:text-xl text-gray-500 mb-10 font-bold uppercase tracking-widest">
-          No fees • Instant settlement • 100% secure
-        </p>
-        <button
-          onClick={() => navigate(isAuthenticated ? '/exchange' : '/signup')}
-          className="px-10 md:px-16 py-4 md:py-5 bg-[#FCD535] text-black font-black text-sm md:text-lg rounded-2xl hover:bg-yellow-400 inline-flex items-center justify-center gap-2 active:scale-95 transition-all shadow-2xl shadow-yellow-500/20"
-        >
-          GET STARTED NOW <ArrowRight size={22} />
-        </button>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-zinc-800 py-12 md:py-20 bg-black/50">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12">
-            <div>
-              <h4 className="font-black text-[#FCD535] mb-6 uppercase tracking-widest text-xs">DubaiP2P</h4>
-              <ul className="space-y-3 text-gray-500 text-[11px] font-bold uppercase tracking-wider">
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">Careers</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-black text-[#FCD535] mb-6 uppercase tracking-widest text-xs">Products</h4>
-              <ul className="space-y-3 text-gray-500 text-[11px] font-bold uppercase tracking-wider">
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">P2P Exchange</a></li>
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">API</a></li>
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">Rates</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-black text-[#FCD535] mb-6 uppercase tracking-widest text-xs">Support</h4>
-              <ul className="space-y-3 text-gray-500 text-[11px] font-bold uppercase tracking-wider">
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">Status</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-black text-[#FCD535] mb-6 uppercase tracking-widest text-xs">Legal</h4>
-              <ul className="space-y-3 text-gray-500 text-[11px] font-bold uppercase tracking-wider">
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">Terms</a></li>
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-[#FCD535] transition-colors">Compliance</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-zinc-900 pt-8 text-center text-zinc-600 text-[10px] font-black uppercase tracking-[0.2em]">
-            <p>&copy; 2026 DubaiP2P. All rights reserved. | Secure P2P Exchange Platform</p>
           </div>
         </div>
+      
       </footer>
     </div>
   )
+}
+function FaqItem({ question, answer }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div 
+      className={`border rounded-2xl transition-all duration-300 ${isOpen ? 'border-blue-500/50 bg-blue-500/5' : 'border-gray-800 bg-[#181a20]'}`}
+    >
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-6 text-left"
+      >
+        <span className="font-bold text-sm md:text-base uppercase tracking-tight">{question}</span>
+        <ChevronDown 
+          size={20} 
+          className={`text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} 
+        />
+      </button>
+      <div 
+        className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-40 pb-6 px-6' : 'max-h-0'}`}
+      >
+        <p className="text-sm text-gray-400 leading-relaxed font-medium">
+          {answer}
+        </p>
+      </div>
+    </div>
+  );
 }

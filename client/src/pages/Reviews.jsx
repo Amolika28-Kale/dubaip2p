@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { getReviews, submitReview } from '../services/reviewService'
-import { Star, MessageSquare, Send, Calendar } from 'lucide-react'
+import { Star, MessageSquare, Send, Calendar, Activity, ShieldCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function Reviews() {
@@ -9,7 +9,7 @@ export default function Reviews() {
   const [reviews, setReviews] = useState([])
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
-  const [rating, setRating] = useState(5) // Default to 5 stars
+  const [rating, setRating] = useState(5)
 
   useEffect(() => {
     if (user) fetchReviews()
@@ -18,7 +18,6 @@ export default function Reviews() {
   const fetchReviews = async () => {
     try {
       const d = await getReviews()
-      // Use standard id comparison for consistency with your ERP admin logic
       const myReviews = (d.reviews || []).filter(
         r => (r.userId?._id || r.userId)?.toString() === user.id
       )
@@ -32,109 +31,135 @@ export default function Reviews() {
     if (!text || !token) return
     setLoading(true)
     try {
-      // Include rating in the payload
       const d = await submitReview({ text, rating, token })
       if (d.review) {
         setReviews([d.review, ...reviews])
         setText('')
-        toast.success('Review submitted successfully!')
+        toast.success('Feedback encrypted & posted')
       }
     } catch (e) {
       console.error(e)
-      toast.error('Failed to submit review')
+      toast.error('Transmission failed')
     }
     setLoading(false)
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 md:p-6 space-y-6 pb-20">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="p-2 bg-yellow-500/10 rounded-xl text-[#FCD535]">
-          <Star size={24} />
+    <div className="w-full max-w-4xl mx-auto p-4 md:p-6 space-y-8 pb-20 bg-[#0b0e11]">
+      {/* Header Section */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-blue-600/10 rounded-xl text-blue-500 border border-blue-600/20 shadow-inner">
+            <MessageSquare size={24} />
+          </div>
+          <div>
+            <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter italic">Merchant Feedback</h2>
+            <p className="text-[10px] text-gray-500 uppercase font-black tracking-[0.2em]">Broadcast your trade experience</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter">My Feedback</h2>
-          <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Share your exchange experience</p>
-        </div>
+        <Activity size={18} className="text-blue-900/40 hidden md:block" />
       </div>
 
       {token && (
-        <div className="bg-[#161A1E] p-4 md:p-6 rounded-[2rem] border border-zinc-800 shadow-xl space-y-4">
-          <div className="flex items-center gap-2 mb-2 ml-1">
-            <span className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Your Rating:</span>
-            <div className="flex gap-1">
+        <div className="bg-[#181a20] p-6 md:p-10 rounded-[2.5rem] border border-gray-800 shadow-2xl space-y-6 transition-all hover:border-blue-500/20">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 ml-1">
+            <span className="text-[10px] text-gray-500 uppercase font-black tracking-[0.2em]">Protocol Rating:</span>
+            <div className="flex gap-2 bg-[#0b0e11] px-4 py-2 rounded-full border border-gray-800">
               {[1, 2, 3, 4, 5].map((num) => (
                 <button
                   key={num}
                   onClick={() => setRating(num)}
-                  className={`transition-colors ${num <= rating ? 'text-yellow-400' : 'text-zinc-700'}`}
+                  className={`transition-all transform active:scale-90 ${num <= rating ? 'text-blue-500' : 'text-zinc-800'}`}
                 >
-                  <Star size={18} fill={num <= rating ? "currentColor" : "none"} />
+                  <Star size={20} fill={num <= rating ? "currentColor" : "none"} className={num <= rating ? "drop-shadow-[0_0_8px_rgba(37,99,235,0.5)]" : ""} />
                 </button>
               ))}
             </div>
           </div>
 
           <div className="relative group">
-            <MessageSquare size={16} className="absolute left-4 top-4 text-zinc-600 group-focus-within:text-[#FCD535] transition-colors" />
+            <MessageSquare size={16} className="absolute left-5 top-5 text-zinc-700 group-focus-within:text-blue-500 transition-colors" />
             <textarea
               value={text}
               onChange={e => setText(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-sm text-white outline-none focus:border-yellow-500/50 transition-all resize-none h-32"
-              placeholder="Tell us about the speed and reliability of your trade..."
+              className="w-full pl-14 pr-6 py-5 bg-[#0b0e11] border border-gray-800 rounded-[1.5rem] text-sm text-white outline-none focus:border-blue-500/50 transition-all resize-none h-36 font-bold tracking-tight"
+              placeholder="Report on settlement speed, node reliability, or support latency..."
             />
           </div>
 
           <button
             onClick={submit}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-4 bg-[#FCD535] text-black rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-yellow-400 active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-yellow-500/5"
+            className="w-full flex items-center justify-center gap-3 py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-blue-700 active:scale-[0.97] transition-all disabled:opacity-50 shadow-lg shadow-blue-600/10"
           >
             {loading ? (
-              <div className="h-4 w-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                Post Review <Send size={14} />
+                Authorize Broadcast <Send size={14} className="stroke-[3px]" />
               </>
             )}
           </button>
         </div>
       )}
 
-      <div className="space-y-4">
-        <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Past Reviews ({reviews.length})</h3>
+      <div className="space-y-4 pt-4">
+        <div className="flex items-center gap-2 mb-2 ml-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+            <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Transaction Log ({reviews.length})</h3>
+        </div>
+        
         {reviews.length === 0 ? (
-          <div className="text-center py-10 text-zinc-600 italic text-sm">You haven't posted any reviews yet.</div>
+          <div className="text-center py-16 bg-[#181a20] border border-gray-800 rounded-[2rem] border-dashed">
+            <ShieldCheck size={40} className="mx-auto text-zinc-800 mb-4" />
+            <p className="text-[10px] text-zinc-600 font-black uppercase tracking-widest italic text-sm">No historical data available in this node.</p>
+          </div>
         ) : (
-          reviews.map((r, i) => (
-            <div key={i} className="p-5 md:p-6 bg-[#161A1E] rounded-3xl border border-zinc-800 shadow-md group transition-all hover:border-zinc-700 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex gap-1 text-yellow-400">
-                  {[...Array(5)].map((_, starIdx) => (
-                    <Star 
-                      key={starIdx} 
-                      size={12} 
-                      fill={starIdx < (r.rating || 5) ? "currentColor" : "none"} 
-                      className={starIdx < (r.rating || 5) ? "text-yellow-400" : "text-zinc-700"}
-                    />
-                  ))}
+          <div className="grid grid-cols-1 gap-4">
+            {reviews.map((r, i) => (
+              <div key={i} className="p-6 md:p-8 bg-[#181a20] rounded-[2rem] border border-gray-800 shadow-xl group transition-all hover:border-blue-500/30 relative overflow-hidden animate-in fade-in slide-in-from-bottom-3 duration-500">
+                {/* Decorative ghost icon */}
+                <Star size={100} className="absolute -right-8 -bottom-8 text-blue-500 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity" />
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4 relative z-10">
+                  <div className="flex gap-1.5 bg-[#0b0e11] px-3 py-1.5 rounded-full border border-gray-800">
+                    {[...Array(5)].map((_, starIdx) => (
+                      <Star 
+                        key={starIdx} 
+                        size={12} 
+                        fill={starIdx < (r.rating || 5) ? "currentColor" : "none"} 
+                        className={starIdx < (r.rating || 5) ? "text-blue-500 drop-shadow-[0_0_5px_rgba(37,99,235,0.3)]" : "text-zinc-800"}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 text-[9px] text-zinc-500 font-black uppercase tracking-widest">
+                    <Calendar size={12} className="text-blue-900" />
+                    UTC: {new Date(r.createdAt).toLocaleDateString()}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-bold uppercase">
-                  <Calendar size={12} />
-                  {new Date(r.createdAt).toLocaleDateString()}
+
+                <p className="text-sm md:text-base text-gray-300 leading-relaxed font-bold tracking-tight italic mb-8 relative z-10">
+                  "{r.text}"
+                </p>
+
+                <div className="flex items-center gap-3 pt-6 border-t border-gray-800/50 relative z-10">
+                  <div className="h-9 w-9 bg-[#0b0e11] border border-gray-800 rounded-xl flex items-center justify-center text-xs font-black text-blue-500 uppercase shadow-inner italic">
+                    {user?.username?.[0] || user?.name?.[0] || 'U'}
+                  </div>
+                  <div>
+                    <span className="block text-[10px] font-black uppercase tracking-widest text-white tracking-tighter">Verified Node Member</span>
+                    <span className="block text-[8px] font-black uppercase tracking-[0.2em] text-blue-900/60 mt-0.5">End-to-End Encrypted</span>
+                  </div>
                 </div>
               </div>
-              <p className="text-sm text-gray-300 leading-relaxed font-medium">"{r.text}"</p>
-              <div className="mt-4 flex items-center gap-2">
-                <div className="h-6 w-6 bg-zinc-800 rounded-lg flex items-center justify-center text-[10px] font-black text-yellow-400 uppercase border border-zinc-700">
-                  {user?.username?.[0] || user?.name?.[0] || 'U'}
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Verified User</span>
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
+      
+      <p className="text-center text-[9px] text-zinc-700 font-black uppercase tracking-[0.3em] pt-6">
+        DubaiP2P Feedback Protocol v1.4
+      </p>
     </div>
   )
 }

@@ -51,7 +51,7 @@ function AppContent() {
           <ProtectedRoute>
             <div className="max-w-4xl mx-auto px-4 py-8 md:p-10">
               <header className="mb-6 md:mb-10 text-center md:text-left">
-                <h1 className="text-2xl md:text-3xl font-black text-[#FCD535] uppercase italic tracking-tighter">Fast Swap</h1>
+                <h1 className="text-2xl md:text-3xl font-black text-blue-600 uppercase italic tracking-tighter">Fast Swap</h1>
                 <p className="text-gray-500 text-[10px] md:text-sm font-bold uppercase tracking-widest mt-1">Direct platform-to-user settlement</p>
               </header>
               <Home /> 
@@ -73,7 +73,7 @@ function AppContent() {
             <div className="max-w-7xl mx-auto px-3 py-6 md:p-6">
               <header className="mb-6 flex flex-col md:flex-row justify-between items-center bg-[#161A1E] p-5 md:p-6 rounded-3xl border border-zinc-800 gap-4 text-center md:text-left">
                 <div>
-                  <h1 className="text-xl md:text-2xl font-black text-[#FCD535] uppercase italic tracking-tighter">Admin Command Center</h1>
+                  <h1 className="text-xl md:text-2xl font-black text-blue-600 uppercase italic tracking-tighter">Admin Command Center</h1>
                   <p className="text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Platform Liquidity & Verification</p>
                 </div>
                 <div className="hidden md:block h-8 w-[1px] bg-zinc-800 mx-4"></div>

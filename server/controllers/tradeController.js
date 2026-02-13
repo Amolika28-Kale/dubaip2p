@@ -33,12 +33,12 @@ async function getRateFromDB() {
   }
 }
 
+
 exports.initiateExchange = async (req, res) => {
   try {
     const { sendMethod, receiveMethod, fiatAmount, cryptoAmount, walletAddress, type } = req.body;
     
     const rate = await getRateFromDB();
-    // Logic: If selling USDT, users usually get a slightly lower rate (e.g., rate - 2)
     const finalRate = type === 'SELL' ? (rate - 1) : rate; 
 
     let tradeData = {
@@ -46,26 +46,39 @@ exports.initiateExchange = async (req, res) => {
       sendMethod,
       receiveMethod,
       rate: finalRate,
-      walletAddress, // If SELL, this is user's UPI/Bank details. If BUY, it's user's Crypto Wallet.
+      walletAddress,
       status: 'PENDING',
-      type: type || 'BUY' // Add a 'type' field to your Trade Schema if possible
+      type: type || 'BUY'
     };
 
     if (type === 'SELL') {
+
+      // 🔥 CREATE VIRTUAL WALLET
+      const uniqueAddress = "VIRT-" + crypto.randomBytes(8).toString('hex').toUpperCase();
+
+      tradeData.virtualWallet = {
+        address: uniqueAddress,
+        network: sendMethod.split('-')[1] // TRC20 / BEP20
+      };
+
       tradeData.cryptoAmount = Number(cryptoAmount);
       tradeData.fiatAmount = parseFloat((cryptoAmount * finalRate).toFixed(2));
+
     } else {
       tradeData.fiatAmount = Number(fiatAmount);
       tradeData.cryptoAmount = parseFloat((fiatAmount / finalRate).toFixed(6));
     }
 
     const trade = await Trade.create(tradeData);
+
     return res.json({ trade });
+
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 exports.confirmPayment = async (req, res) => {
   try {

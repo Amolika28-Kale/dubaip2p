@@ -13,6 +13,12 @@ const TradeSchema = new mongoose.Schema({
   rate: { type: Number, required: true },
 
   walletAddress: { type: String, required: true },
+   // 🔥 NEW FIELD (SELL only)
+  virtualWallet: {
+    address: String,
+    network: String
+  },
+
   transactionScreenshot: { type: String },
 
   status: {

@@ -20,15 +20,16 @@ export default function Navbar() {
 
   const isActive = (path) => location.pathname === path ? 'text-[#FCD535]' : 'text-gray-400 hover:text-white'
 
-  if (['/', '/login', '/signup'].includes(location.pathname)) return null
+  if (['/', '/login', '/signup' , '/forgot-password'].includes(location.pathname)) return null
 
   return (
     <nav className="bg-[#0B0E11] border-b border-zinc-800 sticky top-0 z-[100]">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4 md:gap-6">
-          <Link to="/" className="text-lg md:text-xl font-black text-[#FCD535] uppercase italic tracking-tighter shrink-0">
-            DubaiP2P
-          </Link>
+           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black text-white italic shadow-lg shadow-blue-600/20 group-hover:scale-105 transition-transform">D</div>
+            <span className="text-lg md:text-xl font-black text-white uppercase italic tracking-tighter shrink-0">
+              DubaiP2P
+            </span>
           <div className="hidden sm:block">
             <OperatorStatusBadge />
           </div>
@@ -110,8 +111,9 @@ export default function Navbar() {
           <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-[#0B0E11] border-l border-zinc-800 p-6 flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
             
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-zinc-800">
-              <span className="text-[#FCD535] font-black italic uppercase tracking-tighter">DubaiP2P Menu</span>
-              <button onClick={() => setMenuOpen(false)} className="text-gray-400 hover:text-white p-1">
+<span className="text-lg md:text-xl font-black text-white uppercase italic tracking-tighter shrink-0">
+              DubaiP2P
+            </span>              <button onClick={() => setMenuOpen(false)} className="text-gray-400 hover:text-white p-1">
                 <X size={24} />
               </button>
             </div>
@@ -151,7 +153,7 @@ function MobileLink({ to, icon, label, onClick, active }) {
         <Link 
             to={to} 
             onClick={onClick} 
-            className={`flex items-center gap-3 w-full p-4 rounded-2xl transition-all font-bold ${active ? 'bg-[#FCD535] text-black shadow-lg shadow-yellow-500/10' : 'text-gray-400 hover:bg-zinc-800/50'}`}
+            className={`flex items-center gap-3 w-full p-4 rounded-2xl transition-all font-bold ${active ? 'bg-blue-600 text-black shadow-lg shadow-yellow-500/10' : 'text-gray-400 hover:bg-zinc-800/50'}`}
         >
             {icon}
             <span className="text-sm uppercase tracking-wider">{label}</span>
