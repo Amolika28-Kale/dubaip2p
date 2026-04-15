@@ -188,7 +188,7 @@ export default function AdminDashboard() {
       )}
 
       {/* ================= BOTTOM MOBILE NAV ================= */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-6 md:hidden flex justify-between items-center z-[150] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+      {/* <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-6 md:hidden flex justify-between items-center z-[150] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
         <button onClick={() => setActiveTab('trades')} className={`flex flex-col items-center gap-1 ${activeTab === 'trades' ? 'text-blue-600' : 'text-gray-400'}`}>
           <BarChart3 size={20} />
           <span className="text-[9px] font-black uppercase">Trades</span>
@@ -208,7 +208,7 @@ export default function AdminDashboard() {
           <Shield size={20} />
           <span className="text-[9px] font-black uppercase">Status</span>
         </button>
-      </div>
+      </div> */}
 
     </div>
   )
