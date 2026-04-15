@@ -39,8 +39,8 @@ export default function AvailableSellers() {
   return (
     <div className="mt-10">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Available Sellers</h3>
-        <span className="text-sm text-gray-400 hover:text-white cursor-pointer">
+        <h3 className="text-lg font-semibold text-gray-900">Available Sellers</h3>
+        <span className="text-sm text-gray-500 hover:text-blue-600 cursor-pointer transition-colors">
           View All →
         </span>
       </div>
@@ -49,46 +49,46 @@ export default function AvailableSellers() {
         {sellers.map((s, i) => (
           <div
             key={i}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex items-center justify-between"
+            className="bg-white border border-gray-200 rounded-xl p-5 flex items-center justify-between shadow-sm hover:shadow-md hover:border-blue-200 transition-all"
           >
             {/* LEFT */}
             <div>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold">
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold text-white">
                   {s.name[0]}
                 </div>
-                <div className="font-semibold flex items-center gap-1">
+                <div className="font-semibold flex items-center gap-1 text-gray-900">
                   {s.name}
                   <CheckCircle size={14} className="text-green-500" />
                 </div>
               </div>
 
-              <div className="text-xs text-gray-400 mt-1">
+              <div className="text-xs text-gray-500 mt-1">
                 {s.trades} trades • {s.completion}% completion
               </div>
 
-              <div className="text-xs text-gray-400 mt-1">
-                Available: <span className="text-green-400">{s.available} USDT</span>
+              <div className="text-xs text-gray-500 mt-1">
+                Available: <span className="text-green-600 font-medium">{s.available} USDT</span>
               </div>
             </div>
 
             {/* CENTER */}
             <div className="text-sm text-center">
-              <div className="text-gray-400 text-xs">Exchange Rate</div>
-              <div className="text-lg font-bold">₹{s.rate}</div>
-              <div className="text-xs text-gray-500">per USDT</div>
-              <div className="text-xs text-gray-400 mt-1">
+              <div className="text-gray-500 text-xs">Exchange Rate</div>
+              <div className="text-lg font-bold text-gray-900">₹{s.rate}</div>
+              <div className="text-xs text-gray-400">per USDT</div>
+              <div className="text-xs text-gray-500 mt-1">
                 Limits ₹{s.min} – ₹{s.max}
               </div>
             </div>
 
             {/* RIGHT */}
             <div className="text-right">
-              <div className="text-xs text-gray-400 mb-2">
+              <div className="text-xs text-gray-500 mb-2">
                 {s.methods.join(', ')}
               </div>
               <button onClick={() => navigate("/exchange")}
-               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold">
+               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold text-white transition-colors shadow-sm">
                 Buy USDT
               </button>
             </div>

@@ -52,24 +52,24 @@ export default function Checkout() {
   const adminDetails = paymentDetails.find(p => p.method === (sendMethod.includes('UPI') ? 'UPI' : 'BANK'))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-zinc-950 to-slate-900 text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 text-gray-900 relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(252,213,53,0.05),transparent_50%)] bg-[radial-gradient(circle_at_80%_80%,rgba(252,213,53,0.03),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(37,99,235,0.05),transparent_50%)] bg-[radial-gradient(circle_at_80%_80%,rgba(37,99,235,0.03),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:50px_50px]"></div>
 
       <div className="relative max-w-6xl mx-auto p-6 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center px-4 py-2 bg-[#FCD535]/10 border border-[#FCD535]/20 rounded-full text-[#FCD535] text-sm font-medium mb-4">
+          <div className="inline-flex items-center px-4 py-2 bg-blue-50 border border-blue-200 rounded-full text-blue-600 text-sm font-medium mb-4">
             <Shield size={16} className="mr-2" />
             Secure P2P Transaction
           </div>
           <h1 className="text-5xl font-black mb-4">
-            <span className="bg-gradient-to-r from-[#FCD535] to-yellow-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
               Confirm Exchange
             </span>
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Review your transaction details and complete the secure P2P exchange process
           </p>
         </div>
@@ -77,68 +77,68 @@ export default function Checkout() {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Exchange Summary */}
           <div className="space-y-8">
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <div className="w-8 h-8 bg-[#FCD535]/20 rounded-lg flex items-center justify-center">
-                  <ArrowRight size={20} className="text-[#FCD535]" />
+            <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-lg">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <ArrowRight size={20} className="text-blue-600" />
                 </div>
                 Exchange Summary
               </h3>
 
               <div className="space-y-6">
-                <div className="bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/20 p-6 rounded-2xl">
+                <div className="bg-red-50 border border-red-200 p-6 rounded-2xl">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-sm text-gray-400 font-medium mb-1">You Send</p>
-                      <p className="text-3xl font-black text-red-400">₹{fiatAmount.toLocaleString()}</p>
+                      <p className="text-sm text-gray-600 font-medium mb-1">You Send</p>
+                      <p className="text-3xl font-black text-red-600">₹{fiatAmount.toLocaleString()}</p>
                       <p className="text-sm text-gray-500 mt-1">{sendMethod.replace('-', ' ')}</p>
                     </div>
-                    <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
-                      <ArrowRight size={24} className="text-red-400" />
+                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                      <ArrowRight size={24} className="text-red-600" />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-green-500/10 to-green-600/10 border border-green-500/20 p-6 rounded-2xl">
+                <div className="bg-green-50 border border-green-200 p-6 rounded-2xl">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-sm text-gray-400 font-medium mb-1">You Receive</p>
-                      <p className="text-3xl font-black text-green-400">{(fiatAmount / 83).toFixed(4)} USDT</p>
+                      <p className="text-sm text-gray-600 font-medium mb-1">You Receive</p>
+                      <p className="text-3xl font-black text-green-600">{(fiatAmount / 83).toFixed(4)} USDT</p>
                       <p className="text-sm text-gray-500 mt-1">{receiveMethod}</p>
                     </div>
-                    <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                      <CheckCircle size={24} className="text-green-400" />
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                      <CheckCircle size={24} className="text-green-600" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 bg-white/5 border border-white/10 p-4 rounded-xl">
+              <div className="mt-6 bg-gray-50 border border-gray-200 p-4 rounded-xl">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-400">Exchange Rate:</span>
-                    <p className="font-bold text-white">1 USDT = ₹83.00</p>
+                    <span className="text-gray-500">Exchange Rate:</span>
+                    <p className="font-bold text-gray-900">1 USDT = ₹83.00</p>
                   </div>
                   <div>
-                    <span className="text-gray-400">Processing Time:</span>
-                    <p className="font-bold text-white">2-5 minutes</p>
+                    <span className="text-gray-500">Processing Time:</span>
+                    <p className="font-bold text-gray-900">2-5 minutes</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Wallet Input */}
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <div className="w-8 h-8 bg-[#FCD535]/20 rounded-lg flex items-center justify-center">
-                  <Shield size={20} className="text-[#FCD535]" />
+            <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-lg">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <Shield size={20} className="text-blue-600" />
                 </div>
                 Receiving Wallet
               </h3>
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-3">
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
                     Your {receiveMethod} Wallet Address
                   </label>
                   <input
@@ -146,17 +146,17 @@ export default function Checkout() {
                     value={wallet}
                     onChange={(e)=>setWallet(e.target.value)}
                     placeholder={`Enter your ${receiveMethod} wallet address`}
-                    className="w-full p-4 bg-white/5 border border-white/20 rounded-xl focus:border-[#FCD535] focus:outline-none text-white placeholder-gray-500 backdrop-blur-sm transition-all duration-300"
+                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 focus:outline-none text-gray-900 placeholder-gray-400 transition-all duration-300"
                   />
                   <p className="text-xs text-gray-500 mt-2 flex items-center gap-2">
-                    <Shield size={12} />
+                    <Shield size={12} className="text-blue-600" />
                     Make sure this address is correct. Funds sent to wrong address cannot be recovered.
                   </p>
                 </div>
 
                 {error && (
-                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                    <p className="text-sm text-red-300 flex items-center gap-2">
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-sm text-red-600 flex items-center gap-2">
                       <div className="w-4 h-4 bg-red-500 rounded-full flex-shrink-0"></div>
                       {error}
                     </p>
@@ -166,11 +166,11 @@ export default function Checkout() {
                 <button
                   onClick={handleConfirm}
                   disabled={loading || !wallet}
-                  className="w-full py-4 bg-gradient-to-r from-[#FCD535] to-yellow-400 text-black font-bold rounded-xl hover:shadow-lg hover:shadow-[#FCD535]/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] text-lg flex items-center justify-center gap-3"
+                  className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] text-lg flex items-center justify-center gap-3"
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                       Creating Exchange...
                     </>
                   ) : (
@@ -187,79 +187,79 @@ export default function Checkout() {
           {/* Payment Details */}
           <div className="space-y-6">
             {adminDetails && (
-              <div className="bg-zinc-900/70 border border-zinc-700 rounded-xl p-6">
-                <h3 className="text-xl font-bold text-[#FCD535] mb-4 flex items-center gap-2">
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-lg">
+                <h3 className="text-xl font-bold text-blue-600 mb-4 flex items-center gap-2">
                   <Shield size={20} />
                   Payment Details
                 </h3>
 
                 <div className="space-y-4">
                   {sendMethod.includes('UPI') ? (
-                    <div className="p-4 bg-zinc-800 rounded-lg">
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-semibold text-gray-300">UPI ID</span>
+                        <span className="text-sm font-semibold text-gray-700">UPI ID</span>
                         <button
                           onClick={() => copyToClipboard(adminDetails.details?.upiId)}
-                          className="flex items-center gap-1 px-2 py-1 bg-zinc-700 hover:bg-zinc-600 rounded text-xs transition"
+                          className="flex items-center gap-1 px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-xs transition border border-gray-200"
                         >
-                          {copied ? <CheckCircle size={12} /> : <Copy size={12} />}
+                          {copied ? <CheckCircle size={12} className="text-green-600" /> : <Copy size={12} className="text-gray-600" />}
                           {copied ? 'Copied!' : 'Copy'}
                         </button>
                       </div>
-                      <p className="font-mono text-lg text-[#FCD535] break-all">
+                      <p className="font-mono text-lg text-blue-600 break-all">
                         {adminDetails.details?.upiId}
                       </p>
                       <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
                         <div>
-                          <span className="text-gray-400">Name:</span>
-                          <p className="font-semibold">{adminDetails.details?.name}</p>
+                          <span className="text-gray-500">Name:</span>
+                          <p className="font-semibold text-gray-900">{adminDetails.details?.name}</p>
                         </div>
                         <div>
-                          <span className="text-gray-400">Phone:</span>
-                          <p className="font-semibold">{adminDetails.details?.phone}</p>
+                          <span className="text-gray-500">Phone:</span>
+                          <p className="font-semibold text-gray-900">{adminDetails.details?.phone}</p>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="p-4 bg-zinc-800 rounded-lg">
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-semibold text-gray-300">Bank Details</span>
+                        <span className="text-sm font-semibold text-gray-700">Bank Details</span>
                         <button
                           onClick={() => copyToClipboard(adminDetails.details?.accountNumber)}
-                          className="flex items-center gap-1 px-2 py-1 bg-zinc-700 hover:bg-zinc-600 rounded text-xs transition"
+                          className="flex items-center gap-1 px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-xs transition border border-gray-200"
                         >
-                          {copied ? <CheckCircle size={12} /> : <Copy size={12} />}
+                          {copied ? <CheckCircle size={12} className="text-green-600" /> : <Copy size={12} className="text-gray-600" />}
                           {copied ? 'Copied!' : 'Copy'}
                         </button>
                       </div>
                       <div className="space-y-2 text-sm">
                         <div>
-                          <span className="text-gray-400">Account Name:</span>
-                          <p className="font-semibold">{adminDetails.details?.accountName}</p>
+                          <span className="text-gray-500">Account Name:</span>
+                          <p className="font-semibold text-gray-900">{adminDetails.details?.accountName}</p>
                         </div>
                         <div>
-                          <span className="text-gray-400">Account Number:</span>
-                          <p className="font-mono text-[#FCD535]">{adminDetails.details?.accountNumber}</p>
+                          <span className="text-gray-500">Account Number:</span>
+                          <p className="font-mono text-blue-600">{adminDetails.details?.accountNumber}</p>
                         </div>
                         <div>
-                          <span className="text-gray-400">IFSC Code:</span>
-                          <p className="font-mono">{adminDetails.details?.ifsc}</p>
+                          <span className="text-gray-500">IFSC Code:</span>
+                          <p className="font-mono text-gray-900">{adminDetails.details?.ifsc}</p>
                         </div>
                         <div>
-                          <span className="text-gray-400">Bank Name:</span>
-                          <p className="font-semibold">{adminDetails.details?.bankName}</p>
+                          <span className="text-gray-500">Bank Name:</span>
+                          <p className="font-semibold text-gray-900">{adminDetails.details?.bankName}</p>
                         </div>
                       </div>
                     </div>
                   )}
                 </div>
 
-                <div className="mt-4 p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-                  <h4 className="font-semibold text-blue-400 mb-2 flex items-center gap-2">
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-semibold text-blue-600 mb-2 flex items-center gap-2">
                     <Clock size={16} />
                     Important Instructions
                   </h4>
-                  <ul className="text-sm text-gray-300 space-y-1">
+                  <ul className="text-sm text-gray-700 space-y-1">
                     <li>• Send exactly ₹{fiatAmount.toLocaleString()} to the above account</li>
                     <li>• Use UPI app or net banking for instant transfer</li>
                     <li>• Include your reference ID in payment remarks</li>
@@ -270,28 +270,28 @@ export default function Checkout() {
             )}
 
             {/* Security Notice */}
-            <div className="bg-zinc-900/70 border border-zinc-700 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-[#FCD535] mb-4 flex items-center gap-2">
+            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-bold text-blue-600 mb-4 flex items-center gap-2">
                 <Zap size={20} />
                 Security & Speed
               </h3>
 
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="text-green-500" size={20} />
-                  <span className="text-sm">Instant processing after payment confirmation</span>
+                  <CheckCircle className="text-green-600" size={20} />
+                  <span className="text-sm text-gray-700">Instant processing after payment confirmation</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="text-green-500" size={20} />
-                  <span className="text-sm">No hidden fees or charges</span>
+                  <CheckCircle className="text-green-600" size={20} />
+                  <span className="text-sm text-gray-700">No hidden fees or charges</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="text-green-500" size={20} />
-                  <span className="text-sm">24/7 customer support</span>
+                  <CheckCircle className="text-green-600" size={20} />
+                  <span className="text-sm text-gray-700">24/7 customer support</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="text-green-500" size={20} />
-                  <span className="text-sm">Secure SSL encryption</span>
+                  <CheckCircle className="text-green-600" size={20} />
+                  <span className="text-sm text-gray-700">Secure SSL encryption</span>
                 </div>
               </div>
             </div>
@@ -302,13 +302,13 @@ export default function Checkout() {
         <div className="flex gap-6 justify-center mt-12">
           <button
             onClick={() => navigate('/')}
-            className="px-8 py-3 border-2 border-white/20 text-gray-300 rounded-xl hover:border-white/30 hover:bg-white/5 transition-all duration-300 backdrop-blur-sm"
+            className="px-8 py-3 border-2 border-gray-200 text-gray-600 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-300"
           >
             Back to Calculator
           </button>
           <button
             onClick={() => navigate('/my-exchanges')}
-            className="px-8 py-3 bg-gradient-to-r from-[#FCD535] to-yellow-400 text-black font-bold rounded-xl hover:shadow-lg hover:shadow-[#FCD535]/25 transition-all duration-300 transform hover:scale-105"
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all duration-300 transform hover:scale-105"
           >
             My Exchanges
           </button>

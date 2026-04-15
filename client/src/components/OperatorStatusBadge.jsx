@@ -24,17 +24,17 @@ export default function OperatorStatusBadge() {
   }, [])
 
   return (
-    <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-full shadow-inner">
+    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-full shadow-sm">
       {/* Visual indicator with pulse effect for 'Online' status */}
       <div className="relative flex h-2 w-2">
         {online && (
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
         )}
-        <span className={`relative inline-flex rounded-full h-2 w-2 ${online ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+        <span className={`relative inline-flex rounded-full h-2 w-2 ${online ? 'bg-green-500' : 'bg-red-500'}`}></span>
       </div>
       
       {/* Dynamic text based on operator state */}
-      <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">
+      <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
         Operator: {online ? 'Online' : 'Offline'}
       </span>
     </div>

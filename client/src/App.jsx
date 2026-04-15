@@ -21,8 +21,8 @@ function ProtectedRoute({ children, requireAdmin = false }) {
   const { isAuthenticated, isAdmin, loading } = useContext(AuthContext)
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0B0E11] flex items-center justify-center">
-      <div className="animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-[#FCD535]"></div>
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-blue-600"></div>
     </div>
   )
   
@@ -35,9 +35,33 @@ function ProtectedRoute({ children, requireAdmin = false }) {
 
 function AppContent() {
   return (
-    <div className="min-h-screen bg-[#0B0E11] text-white selection:bg-[#FCD535]/30 overflow-x-hidden">
+    <div className="min-h-screen bg-white text-gray-900 selection:bg-blue-100 overflow-x-hidden">
       <Navbar />
-      <Toaster position="top-right" />
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: '#fff',
+            color: '#1f2937',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+          },
+          success: {
+            style: {
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              color: '#166534',
+            },
+          },
+          error: {
+            style: {
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              color: '#991b1b',
+            },
+          },
+        }}
+      />
       
       <Routes>
         {/* PUBLIC ROUTES */}
@@ -71,13 +95,13 @@ function AppContent() {
         <Route path="/admin" element={
           <ProtectedRoute requireAdmin={true}>
             <div className="max-w-7xl mx-auto px-3 py-6 md:p-6">
-              <header className="mb-6 flex flex-col md:flex-row justify-between items-center bg-[#161A1E] p-5 md:p-6 rounded-3xl border border-zinc-800 gap-4 text-center md:text-left">
+              <header className="mb-6 flex flex-col md:flex-row justify-between items-center bg-white p-5 md:p-6 rounded-3xl border border-gray-200 shadow-sm gap-4 text-center md:text-left">
                 <div>
                   <h1 className="text-xl md:text-2xl font-black text-blue-600 uppercase italic tracking-tighter">Admin Command Center</h1>
                   <p className="text-[9px] md:text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Platform Liquidity & Verification</p>
                 </div>
-                <div className="hidden md:block h-8 w-[1px] bg-zinc-800 mx-4"></div>
-                <p className="text-[10px] text-zinc-600 font-black uppercase md:ml-auto">Active Session</p>
+                <div className="hidden md:block h-8 w-[1px] bg-gray-200 mx-4"></div>
+                <p className="text-[10px] text-gray-400 font-black uppercase md:ml-auto">Active Session</p>
               </header>
               <AdminDashboard />
             </div>
